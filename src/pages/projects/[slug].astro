@@ -1,0 +1,35 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BackLink from '../../components/BackLink.astro';
+import TagList from '../../components/TagList.astro';
+import { projects } from '../../data/projects';
+
+export function getStaticPaths() {
+	return projects.map((project) => ({
+		params: { slug: project.slug },
+		props: { project },
+	}));
+}
+
+const { project } = Astro.props;
+---
+
+<BaseLayout title={`${project.name} | 项目`} description={project.summary}>
+	<div class="detail-shell">
+		<div class="back-row">
+			<BackLink href="/projects" label="返回项目列表" />
+			<BackLink href="/" label="返回首页" />
+		</div>
+
+		<article class="detail-card">
+			<p class="detail-kicker">Project</p>
+			<h1 class="detail-title">{project.name}</h1>
+			<p class="detail-summary">{project.summary}</p>
+			<span class="status-pill">{project.status}</span>
+			<TagList tags={project.tags} />
+			<div class="prose">
+				{project.description.map((paragraph: string) => <p>{paragraph}</p>)}
+			</div>
+		</article>
+	</div>
+</BaseLayout>

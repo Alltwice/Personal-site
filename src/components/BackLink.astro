@@ -1,0 +1,8 @@
+---
+const { href = '/', label = '返回首页' } = Astro.props;
+---
+
+<a class="back-link" href={href}>
+	<span aria-hidden="true">&larr;</span>
+	{label}
+</a>

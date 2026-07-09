@@ -1,0 +1,7 @@
+---
+const { tags = [] } = Astro.props;
+---
+
+<ul class="tag-list" aria-label="标签">
+	{tags.map((tag: string) => <li>{tag}</li>)}
+</ul>

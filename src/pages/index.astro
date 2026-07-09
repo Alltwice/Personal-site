@@ -1,85 +1,63 @@
 ---
-import "../pages/global.css";
+import BaseLayout from '../layouts/BaseLayout.astro';
+import SideNav from '../components/SideNav.astro';
+import PostCard from '../components/PostCard.astro';
+import ProjectCard from '../components/ProjectCard.astro';
+import { getPostsByDate } from '../data/posts';
+import { featuredProjects } from '../data/projects';
+
+const latestPosts = getPostsByDate().slice(0, 3);
+const homeProjects = featuredProjects.slice(0, 3);
 ---
 
-<!doctype html>
-<html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>任的个人作品集</title>
+<BaseLayout title="Personal Site | 首页" description="个人站 v0.1 网站骨架。">
+	<SideNav />
 
+	<div class="home-shell">
+		<section id="home" class="home-section" aria-labelledby="home-title">
+			<p class="section-kicker">Home</p>
+			<h1 id="home-title" class="hero-title">一个用于记录文章与项目的个人站点</h1>
+			<p class="hero-copy">
+				v0.1 先完成基础页面结构、数据流和跳转路径。后续可以在这个骨架上继续扩展内容、视觉和交互。
+			</p>
+			<div class="hero-actions">
+				<a class="button" href="#articles">查看文章</a>
+				<a class="button button--warm" href="#projects">查看项目</a>
+			</div>
+		</section>
 
-  </head>
+		<section id="articles" class="home-section" aria-labelledby="articles-title">
+			<div class="section-header">
+				<div class="section-heading">
+					<p class="section-kicker">Articles</p>
+					<h2 id="articles-title">最新文章</h2>
+					<p>先用 mock 数据展示最新文章卡片，列表页支持按时间和按热度排序。</p>
+				</div>
+				<div class="section-actions">
+					<a class="button" href="/blog">更多文章</a>
+				</div>
+			</div>
 
-  <body>
-    <header class="site-header">
-      <div class="header-inner">
-        <a class="logo" href="/">任</a>
+			<div class="card-grid">
+				{latestPosts.map((post) => <PostCard post={post} />)}
+			</div>
+		</section>
 
-        <nav class="nav">
-          <a href="/">首页</a>
-          <a href="/projects">项目</a>
-          <a href="/blog">博客</a>
-          <a href="/about">关于</a>
-        </nav>
-      </div>
-    </header>
+		<section id="projects" class="home-section" aria-labelledby="projects-title">
+			<div class="section-header">
+				<div class="section-heading">
+					<p class="section-kicker">Projects</p>
+					<h2 id="projects-title">精选项目</h2>
+					<p>项目卡片展示当前重点方向，并链接到每个项目的详情页。</p>
+				</div>
+				<div class="section-actions">
+					<a class="button" href="/projects">更多项目</a>
+				</div>
+			</div>
 
-    <main class="container">
-      <section class="hero">
-        <div>
-          <p class="eyebrow">Unity / C# / Game Client</p>
-          <h1>任的个人作品集</h1>
-          <p>
-            我关注 Unity 游戏客户端开发、工具链开发和交互体验实现。
-            这个网站用于展示项目、学习笔记和阶段性技术积累。
-          </p>
-        </div>
-
-        <aside class="hero-panel">
-          <h2>当前重点</h2>
-          <p>Astro 作品集网站、Unity 项目整理、C++ 工具链项目沉淀。</p>
-        </aside>
-      </section>
-
-      <section class="section">
-        <h2>精选项目</h2>
-
-        <div class="project-grid">
-          <article class="project-card">
-            <h3>配置表工具</h3>
-            <p>面向 Unity 的 Excel/CSV 转 JSON 配置表导出工具。</p>
-
-            <div class="tag-list">
-              <span class="tag">C++</span>
-              <span class="tag">Unity</span>
-              <span class="tag">Toolchain</span>
-            </div>
-          </article>
-
-          <article class="project-card">
-            <h3>Unity 2D 项目</h3>
-            <p>独立完成的 2D Unity 项目，包含基础玩法和 UI 流程。</p>
-
-            <div class="tag-list">
-              <span class="tag">Unity</span>
-              <span class="tag">C#</span>
-            </div>
-          </article>
-
-          <article class="project-card">
-            <h3>个人作品集网站</h3>
-            <p>使用 Astro、TypeScript、HTML 和 CSS 搭建的个人网站。</p>
-
-            <div class="tag-list">
-              <span class="tag">Astro</span>
-              <span class="tag">TypeScript</span>
-              <span class="tag">CSS</span>
-            </div>
-          </article>
-        </div>
-      </section>
-    </main>
-  </body>
-</html>
+			<div class="card-grid">
+				{homeProjects.map((project) => <ProjectCard project={project} />)}
+			</div>
+		</section>
+	</div>
+</BaseLayout>

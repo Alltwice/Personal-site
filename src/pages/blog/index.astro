@@ -1,0 +1,64 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BackLink from '../../components/BackLink.astro';
+import PostCard from '../../components/PostCard.astro';
+import { getPostsByDate } from '../../data/posts';
+
+const sortedPosts = getPostsByDate();
+---
+
+<BaseLayout title="文章 | Personal Site" description="个人站文章列表。">
+	<div class="page-shell">
+		<BackLink href="/" label="返回首页" />
+
+		<section class="page-hero blog-toolbar">
+			<div>
+				<p class="section-kicker">Blog</p>
+				<h1 class="page-title">文章</h1>
+				<p class="page-copy">按时间或热度浏览文章。热度暂时使用 mock views 字段。</p>
+			</div>
+
+			<div class="sort-controls" aria-label="文章排序">
+				<a class="button is-active" href="/blog?sort=date" data-sort-link="date">按时间</a>
+				<a class="button" href="/blog?sort=views" data-sort-link="views">按热度</a>
+			</div>
+		</section>
+
+		<section class="card-grid" data-post-grid aria-label="文章列表">
+			{sortedPosts.map((post) => <PostCard post={post} />)}
+		</section>
+	</div>
+
+	<script>
+		const grid = document.querySelector('[data-post-grid]');
+		const sortLinks = document.querySelectorAll('[data-sort-link]');
+		const params = new URLSearchParams(window.location.search);
+		const sort = params.get('sort') === 'views' ? 'views' : 'date';
+
+		if (grid) {
+			const cards = Array.from(grid.children);
+			cards.sort((first, second) => {
+				if (!(first instanceof HTMLElement) || !(second instanceof HTMLElement)) {
+					return 0;
+				}
+
+				if (sort === 'views') {
+					return Number(second.dataset.views) - Number(first.dataset.views);
+				}
+
+				return (
+					new Date(second.dataset.date || '').getTime() -
+					new Date(first.dataset.date || '').getTime()
+				);
+			});
+
+			cards.forEach((card) => grid.appendChild(card));
+		}
+
+		sortLinks.forEach((link) => {
+			if (link instanceof HTMLElement) {
+				link.classList.toggle('is-active', link.dataset.sortLink === sort);
+			}
+		});
+	</script>
+</BaseLayout>

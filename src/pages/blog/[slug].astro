@@ -1,0 +1,37 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BackLink from '../../components/BackLink.astro';
+import TagList from '../../components/TagList.astro';
+import { posts } from '../../data/posts';
+
+export function getStaticPaths() {
+	return posts.map((post) => ({
+		params: { slug: post.slug },
+		props: { post },
+	}));
+}
+
+const { post } = Astro.props;
+---
+
+<BaseLayout title={`${post.title} | 文章`} description={post.excerpt}>
+	<div class="detail-shell">
+		<div class="back-row">
+			<BackLink href="/blog" label="返回文章列表" />
+			<BackLink href="/" label="返回首页" />
+		</div>
+
+		<article class="detail-card">
+			<p class="detail-kicker">Article</p>
+			<h1 class="detail-title">{post.title}</h1>
+			<div class="detail-meta">
+				<time datetime={post.date}>{post.date}</time>
+				<span>{post.views.toLocaleString('zh-CN')} views</span>
+			</div>
+			<TagList tags={post.tags} />
+			<div class="prose">
+				{post.body.map((paragraph: string) => <p>{paragraph}</p>)}
+			</div>
+		</article>
+	</div>
+</BaseLayout>

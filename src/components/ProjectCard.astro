@@ -1,0 +1,14 @@
+---
+import TagList from './TagList.astro';
+
+const { project } = Astro.props;
+---
+
+<a class="project-card" href={`/projects/${project.slug}`}>
+	<div class="project-card__topline">
+		<span>{project.status}</span>
+	</div>
+	<h3>{project.name}</h3>
+	<p>{project.summary}</p>
+	<TagList tags={project.tags} />
+</a>

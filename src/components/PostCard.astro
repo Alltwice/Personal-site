@@ -1,0 +1,15 @@
+---
+import TagList from './TagList.astro';
+
+const { post } = Astro.props;
+---
+
+<a class="post-card" href={`/blog/${post.slug}`} data-date={post.date} data-views={post.views}>
+	<div class="post-card__meta">
+		<time datetime={post.date}>{post.date}</time>
+		<span>{post.views.toLocaleString('zh-CN')} views</span>
+	</div>
+	<h3>{post.title}</h3>
+	<p>{post.excerpt}</p>
+	<TagList tags={post.tags} />
+</a>

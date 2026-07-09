@@ -1,0 +1,43 @@
+---
+import BaseLayout from '../../layouts/BaseLayout.astro';
+import BackLink from '../../components/BackLink.astro';
+import ProjectCard from '../../components/ProjectCard.astro';
+import { projects, featuredProjects } from '../../data/projects';
+
+const primaryProject = featuredProjects[0] ?? projects[0];
+---
+
+<BaseLayout title="项目 | Personal Site" description="个人站项目列表。">
+	<div class="page-shell">
+		<BackLink href="/" label="返回首页" />
+
+		<section class="projects-layout" aria-label="项目列表与简介">
+			<div class="project-stack">
+				{projects.map((project) => <ProjectCard project={project} />)}
+			</div>
+
+			<aside class="intro-panel">
+				<p class="section-kicker">Projects</p>
+				<h1>项目</h1>
+				<p>
+					这里先放项目的基础列表和简介区域。左侧卡片可点击进入详情页，hover
+					时会有轻微位移反馈。
+				</p>
+				<div class="intro-list">
+					<div>
+						<strong>精选项目</strong>
+						<span>{featuredProjects.length} 个</span>
+					</div>
+					<div>
+						<strong>当前聚焦</strong>
+						<span>{primaryProject.name}</span>
+					</div>
+					<div>
+						<strong>展示状态</strong>
+						<span>v0.1 骨架</span>
+					</div>
+				</div>
+			</aside>
+		</section>
+	</div>
+</BaseLayout>
