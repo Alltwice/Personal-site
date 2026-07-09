@@ -1,12 +1,14 @@
 ---
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import SideNav from '../components/SideNav.astro';
 import '../styles/global.css';
 
 const {
 	title = '个人站点',
 	description = '一个用 Astro 构建的个人网站骨架。',
 } = Astro.props;
+
+const isHome = Astro.url.pathname === '/';
 ---
 
 <!doctype html>
@@ -21,7 +23,7 @@ const {
 		<title>{title}</title>
 	</head>
 	<body>
-		<Header />
+		<SideNav isHome={isHome} />
 		<main class="site-main">
 			<slot />
 		</main>

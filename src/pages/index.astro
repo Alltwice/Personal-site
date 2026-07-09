@@ -1,6 +1,6 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
-import SideNav from '../components/SideNav.astro';
+import CurrentTime from '../components/CurrentTime.astro';
 import PostCard from '../components/PostCard.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { getPostsByDate } from '../data/posts';
@@ -10,20 +10,15 @@ const latestPosts = getPostsByDate().slice(0, 3);
 const homeProjects = featuredProjects.slice(0, 3);
 ---
 
-<BaseLayout title="Personal Site | 首页" description="个人站 v0.1 网站骨架。">
-	<SideNav />
-
+<BaseLayout title="Personal Site | 首页" description="个人站 v0.2 网站骨架。">
 	<div class="home-shell">
 		<section id="home" class="home-section" aria-labelledby="home-title">
 			<p class="section-kicker">Home</p>
 			<h1 id="home-title" class="hero-title">一个用于记录文章与项目的个人站点</h1>
 			<p class="hero-copy">
-				v0.1 先完成基础页面结构、数据流和跳转路径。后续可以在这个骨架上继续扩展内容、视觉和交互。
+				v0.2 继续完善功能和基础排版：保留清晰的页面结构，加入实时当前时间，并为后续视觉迭代留出稳定空间。
 			</p>
-			<div class="hero-actions">
-				<a class="button" href="#articles">查看文章</a>
-				<a class="button button--warm" href="#projects">查看项目</a>
-			</div>
+			<CurrentTime />
 		</section>
 
 		<section id="articles" class="home-section" aria-labelledby="articles-title">
@@ -57,6 +52,21 @@ const homeProjects = featuredProjects.slice(0, 3);
 
 			<div class="card-grid">
 				{homeProjects.map((project) => <ProjectCard project={project} />)}
+			</div>
+		</section>
+
+		<section id="about" class="home-section about-section" aria-labelledby="about-title">
+			<div class="section-heading">
+				<p class="section-kicker">About</p>
+				<h2 id="about-title">关于</h2>
+			</div>
+			<div class="about-copy">
+				<p>
+					这里暂时放置个人信息占位内容：可以介绍自己的背景、关注方向、正在学习或建设的项目，以及这个网站未来会承载的内容。
+				</p>
+				<p>
+					当前版本保持文字为主，不添加额外跳转和复杂设计。后续可以逐步替换为真实简介、经历、技能和联系方式。
+				</p>
 			</div>
 		</section>
 	</div>

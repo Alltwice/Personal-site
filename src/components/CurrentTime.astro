@@ -1,0 +1,30 @@
+<div class="current-time" aria-live="polite">
+	<span class="current-time__label">当前时间</span>
+	<time class="current-time__value" data-current-time datetime="">--:--:--</time>
+</div>
+
+<script lang="ts">
+	const timeElement = document.querySelector<HTMLTimeElement>('[data-current-time]');
+	const formatter = new Intl.DateTimeFormat('zh-CN', {
+		year: 'numeric',
+		month: '2-digit',
+		day: '2-digit',
+		weekday: 'long',
+		hour: '2-digit',
+		minute: '2-digit',
+		second: '2-digit',
+	});
+
+	const updateCurrentTime = () => {
+		if (!timeElement) {
+			return;
+		}
+
+		const now = new Date();
+		timeElement.dateTime = now.toISOString();
+		timeElement.textContent = formatter.format(now);
+	};
+
+	updateCurrentTime();
+	window.setInterval(updateCurrentTime, 1000);
+</script>
