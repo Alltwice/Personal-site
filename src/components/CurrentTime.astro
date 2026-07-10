@@ -3,7 +3,7 @@
 	<time class="current-time__value" data-current-time datetime="">--:--:--</time>
 </div>
 
-<script lang="ts">
+<script>
 	const timeElement = document.querySelector<HTMLTimeElement>('[data-current-time]');
 	const formatter = new Intl.DateTimeFormat('zh-CN', {
 		year: 'numeric',
