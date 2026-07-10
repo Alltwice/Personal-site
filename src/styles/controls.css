@@ -1,0 +1,36 @@
+.button {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-height: 42px;
+	padding: 0 var(--space-4);
+	border: 1px solid var(--color-line-strong);
+	border-radius: var(--radius-small);
+	background: transparent;
+	color: var(--color-text);
+	font-family: var(--font-mono);
+	font-size: 0.82rem;
+	font-weight: 700;
+	transition:
+		border-color var(--motion-fast) ease,
+		background var(--motion-fast) ease,
+		color var(--motion-fast) ease,
+		transform var(--motion-fast) ease;
+}
+
+.button:hover,
+.button.is-active {
+	border-color: var(--color-accent);
+	background: var(--color-accent);
+	color: var(--color-accent-ink);
+}
+
+.button:hover {
+	transform: translateY(-2px);
+}
+
+@media (max-width: 720px) {
+	.button {
+		flex: 1;
+	}
+}

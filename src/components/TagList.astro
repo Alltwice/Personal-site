@@ -5,3 +5,25 @@ const { tags = [] } = Astro.props;
 <ul class="tag-list" aria-label="标签">
 	{tags.map((tag: string) => <li>{tag}</li>)}
 </ul>
+
+<style>
+	.tag-list {
+		display: flex;
+		flex-wrap: wrap;
+		gap: var(--space-2);
+		margin: var(--tag-list-margin, 0);
+		padding: 0;
+		list-style: none;
+	}
+
+	.tag-list li {
+		border: 1px solid var(--color-line-strong);
+		border-radius: var(--radius-small);
+		padding: 0.18rem 0.5rem;
+		background: var(--color-surface-muted);
+		color: var(--color-muted);
+		font-family: var(--font-mono);
+		font-size: 0.72rem;
+		font-weight: 700;
+	}
+</style>

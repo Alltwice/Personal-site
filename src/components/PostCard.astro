@@ -13,3 +13,71 @@ const { post } = Astro.props;
 	<p>{post.excerpt}</p>
 	<TagList tags={post.tags} />
 </a>
+
+<style>
+	.post-card {
+		--tag-list-margin: auto 0 0;
+		position: relative;
+		display: flex;
+		min-height: 240px;
+		flex-direction: column;
+		gap: var(--space-3);
+		padding: var(--space-5);
+		border: 1px solid var(--color-line);
+		border-radius: var(--radius-small);
+		background: var(--color-surface);
+		color: var(--color-text);
+		transition:
+			transform var(--motion-fast) ease,
+			box-shadow var(--motion-fast) ease,
+			border-color var(--motion-fast) ease,
+			background var(--motion-fast) ease;
+	}
+
+	.post-card::before {
+		position: absolute;
+		top: -1px;
+		right: -1px;
+		width: 24px;
+		height: 2px;
+		background: var(--color-accent);
+		content: '';
+		transform: scaleX(0);
+		transform-origin: right;
+		transition: transform var(--motion-fast) ease;
+	}
+
+	.post-card:hover {
+		transform: translateY(-4px);
+		border-color: var(--color-accent);
+		background: var(--color-surface-raised);
+		box-shadow: var(--shadow-card);
+	}
+
+	.post-card:hover::before {
+		transform: scaleX(1);
+	}
+
+	.post-card h3 {
+		font-size: 1.24rem;
+		line-height: 1.25;
+	}
+
+	.post-card p {
+		color: var(--color-muted);
+	}
+
+	.post-card__meta {
+		display: flex;
+		align-items: center;
+		justify-content: space-between;
+		gap: var(--space-2);
+		color: var(--color-muted);
+		font-family: var(--font-mono);
+		font-size: 0.76rem;
+	}
+
+	.post-card__meta span {
+		color: var(--color-accent);
+	}
+</style>

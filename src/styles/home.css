@@ -1,6 +1,6 @@
 .home-shell {
 	display: grid;
-	gap: var(--space-8);
+	gap: var(--space-10);
 }
 
 .home-section {
@@ -10,6 +10,10 @@
 	flex-direction: column;
 	justify-content: center;
 	gap: var(--space-5);
+}
+
+.home-section:not(:first-child) {
+	border-top: 1px solid var(--color-line);
 }
 
 .hero-title {
@@ -25,28 +29,8 @@
 	font-size: 1.08rem;
 }
 
-.current-time {
-	display: grid;
-	width: fit-content;
-	gap: var(--space-1);
-	border-left: 3px solid var(--color-accent);
-	padding: var(--space-2) 0 var(--space-2) var(--space-4);
-}
-
-.current-time__label {
-	color: var(--color-muted);
-	font-size: 0.86rem;
-	font-weight: 700;
-}
-
-.current-time__value {
-	color: var(--color-text);
-	font-size: clamp(1.15rem, 2vw, 1.45rem);
-	font-weight: 800;
-}
-
 .about-section {
-	min-height: 58vh;
+	min-height: 78vh;
 }
 
 .about-copy {
@@ -60,5 +44,9 @@
 @media (max-width: 720px) {
 	.home-section {
 		min-height: 64vh;
+	}
+
+	.home-section:not(:first-child) {
+		padding-top: var(--space-6);
 	}
 }
