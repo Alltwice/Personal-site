@@ -1,4 +1,8 @@
-<footer class="site-footer">
+---
+const { isHome = false } = Astro.props;
+---
+
+<footer class:list={['site-footer', isHome && 'site-footer--home']}>
 	<p>v0.2.1 site skeleton built with Astro.</p>
 </footer>
 
@@ -17,6 +21,10 @@
 		color: var(--color-muted);
 		font-family: var(--font-mono);
 		font-size: 0.76rem;
+	}
+
+	.site-footer--home {
+		border-top: 0;
 	}
 
 	@media (max-width: 760px) {

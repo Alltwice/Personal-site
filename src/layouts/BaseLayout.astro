@@ -28,6 +28,6 @@ const isHome = Astro.url.pathname === '/';
 		<main class="site-main">
 			<slot />
 		</main>
-		<Footer />
+		<Footer isHome={isHome} />
 	</body>
 </html>

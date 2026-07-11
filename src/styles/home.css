@@ -1,19 +1,23 @@
 .home-shell {
 	display: grid;
-	gap: var(--space-10);
+	gap: 0;
 }
 
 .home-section {
+	--home-section-top-offset: 0px;
 	display: flex;
-	min-height: 72vh;
-	scroll-margin-top: 40px;
+	min-height: calc(72vh + var(--space-10) + var(--home-section-top-offset));
+	scroll-margin-top: 0;
 	flex-direction: column;
 	justify-content: center;
 	gap: var(--space-5);
+	padding-top: var(--home-section-top-offset);
+	padding-bottom: var(--space-10);
+	border-bottom: 1px solid var(--color-line);
 }
 
 .home-section:not(:first-child) {
-	border-top: 1px solid var(--color-line);
+	--home-section-top-offset: var(--space-7);
 }
 
 .hero-title {
@@ -29,10 +33,6 @@
 	font-size: 1.08rem;
 }
 
-.about-section {
-	min-height: 78vh;
-}
-
 .about-copy {
 	display: grid;
 	max-width: 760px;
@@ -43,10 +43,11 @@
 
 @media (max-width: 720px) {
 	.home-section {
-		min-height: 64vh;
+		min-height: calc(64vh + var(--space-10) + var(--home-section-top-offset));
+		scroll-margin-top: 84px;
 	}
 
 	.home-section:not(:first-child) {
-		padding-top: var(--space-6);
+		--home-section-top-offset: var(--space-6);
 	}
 }
