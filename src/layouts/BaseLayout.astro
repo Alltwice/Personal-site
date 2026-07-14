@@ -1,6 +1,6 @@
 ---
 import Footer from '../components/Footer.astro';
-import SideNav from '../components/SideNav.astro';
+import TopNav from '../components/TopNav.astro';
 import '../styles/global.css';
 
 const {
@@ -23,8 +23,8 @@ const isHome = Astro.url.pathname === '/';
 		<meta name="generator" content={Astro.generator} />
 		<title>{title}</title>
 	</head>
-	<body>
-		<SideNav isHome={isHome} />
+	<body id="top">
+		<TopNav currentPath={Astro.url.pathname} />
 		<main class="site-main">
 			<slot />
 		</main>

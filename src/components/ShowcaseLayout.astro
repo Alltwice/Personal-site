@@ -1,0 +1,26 @@
+---
+const {
+	pageLabel = 'Home',
+	label = 'Showcase',
+	titleId = 'showcase-title',
+	detailId = 'detail',
+	variant = 'default',
+} = Astro.props;
+---
+
+<section
+	class:list={['showcase', `showcase--${variant}`]}
+	aria-labelledby={titleId}
+	data-page={pageLabel.toLowerCase()}
+>
+	<div class="showcase__coordinate" aria-hidden="true">
+		<span>{label}</span>
+		<span>{pageLabel} / 2026</span>
+	</div>
+	<div class="showcase__profile"><slot name="profile" /></div>
+	<div class="showcase__intro"><slot name="intro" /></div>
+	<div class="showcase__visual"><slot name="visual" /></div>
+	<div class="showcase__meta"><slot name="meta" /></div>
+	<div class="showcase__indicator"><slot name="indicator" /></div>
+	<a class="showcase__skip" href={`#${detailId}`}>跳到详细内容</a>
+</section>

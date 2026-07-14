@@ -1,6 +1,10 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import BackLink from '../../components/BackLink.astro';
+import ShowcaseLayout from '../../components/ShowcaseLayout.astro';
+import ProfilePanel from '../../components/ProfilePanel.astro';
+import ShowcaseVisual from '../../components/ShowcaseVisual.astro';
+import ScrollIndicator from '../../components/ScrollIndicator.astro';
+import DetailSection from '../../components/DetailSection.astro';
 import ProjectCard from '../../components/ProjectCard.astro';
 import { projects, featuredProjects } from '../../data/projects';
 
@@ -8,36 +12,23 @@ const primaryProject = featuredProjects[0] ?? projects[0];
 ---
 
 <BaseLayout title="项目 | Personal Site" description="个人站项目列表。">
-	<div class="page-shell">
-		<BackLink href="/" label="返回首页" />
+	<ShowcaseLayout pageLabel="Projects" label="Index / 03" titleId="projects-title" detailId="projects-detail" variant="listing">
+		<ProfilePanel slot="profile" name="PROJECT FILES" role={`${projects.length} active records`} status="Building in public" />
+		<div slot="intro" class="showcase-copy">
+			<p class="showcase-copy__kicker">Experiments becoming systems.</p>
+			<h1 id="projects-title">项目<br /><span>把想法变成可见结果。</span></h1>
+			<p class="showcase-copy__lead">这里保留目标、约束、选择和当前状态，而不只展示完成后的截图。</p>
+		</div>
+		<ShowcaseVisual slot="visual" alt="项目页面的蓝灰色线稿人物主视觉" />
+		<div slot="meta" class="showcase-stat">
+			<small>CURRENT FOCUS</small><strong>{primaryProject?.name}</strong><p>{featuredProjects.length} 个精选项目正在展示</p>
+		</div>
+		<ScrollIndicator slot="indicator" target="projects-detail" label="VIEW" />
+	</ShowcaseLayout>
 
-		<section class="projects-layout" aria-label="项目列表与简介">
-			<div class="project-stack">
-				{projects.map((project) => <ProjectCard project={project} />)}
-			</div>
-
-			<aside class="intro-panel">
-				<p class="section-kicker">Projects</p>
-				<h1>项目</h1>
-				<p>
-					这里先放项目的基础列表和简介区域。左侧卡片可点击进入详情页，hover
-					时会有轻微位移反馈。
-				</p>
-				<div class="intro-list">
-					<div>
-						<strong>精选项目</strong>
-						<span>{featuredProjects.length} 个</span>
-					</div>
-					<div>
-						<strong>当前聚焦</strong>
-						<span>{primaryProject.name}</span>
-					</div>
-					<div>
-						<strong>展示状态</strong>
-						<span>v0.1 骨架</span>
-					</div>
-				</div>
-			</aside>
-		</section>
+	<div class="detail-stack" id="projects-detail">
+		<DetailSection id="project-archive" number="01" label="Work" title="全部项目" description="保留现有项目状态、标签和详情 slug。">
+			<div class="project-list">{projects.map((project, index) => <ProjectCard project={project} data-index={index} />)}</div>
+		</DetailSection>
 	</div>
 </BaseLayout>

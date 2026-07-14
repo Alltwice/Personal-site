@@ -1,0 +1,72 @@
+---
+const { currentPath = '/' } = Astro.props;
+
+const items = [
+	{ href: '/', label: '主页' },
+	{ href: '/blog', label: '文章' },
+	{ href: '/projects', label: '项目' },
+	{ href: '/about', label: '关于' },
+];
+
+const isCurrent = (href: string) =>
+	href === '/' ? currentPath === '/' : currentPath === href || currentPath.startsWith(`${href}/`);
+---
+
+<header class="top-nav" data-top-nav>
+	<a class="top-nav__brand" href="/" aria-label="返回主页">
+		<span class="top-nav__brand-mark">01</span>
+		<span>REI.LOG</span>
+	</a>
+
+	<button
+		class="top-nav__toggle"
+		type="button"
+		aria-expanded="false"
+		aria-controls="primary-navigation"
+		data-nav-toggle
+	>
+		<span data-menu-label>菜单</span>
+	</button>
+
+	<nav id="primary-navigation" class="top-nav__links" aria-label="主导航" data-nav-menu>
+		{items.map((item) => (
+			<a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+				<span>{item.label}</span>
+				<small>{String(items.indexOf(item) + 1).padStart(2, '0')}</small>
+			</a>
+		))}
+	</nav>
+</header>
+
+<script>
+	const nav = document.querySelector<HTMLElement>('[data-top-nav]');
+	const toggle = nav?.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+	const menu = nav?.querySelector<HTMLElement>('[data-nav-menu]');
+	const label = nav?.querySelector<HTMLElement>('[data-menu-label]');
+
+	const setOpen = (open: boolean) => {
+		if (!nav || !toggle || !label) return;
+		nav.classList.toggle('is-open', open);
+		toggle.setAttribute('aria-expanded', String(open));
+		label.textContent = open ? '关闭' : '菜单';
+	};
+
+	toggle?.addEventListener('click', () => {
+		setOpen(toggle.getAttribute('aria-expanded') !== 'true');
+	});
+
+	menu?.querySelectorAll('a').forEach((link) => {
+		link.addEventListener('click', () => setOpen(false));
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape') {
+			setOpen(false);
+			toggle?.focus();
+		}
+	});
+
+	window.matchMedia('(min-width: 761px)').addEventListener('change', (event) => {
+		if (event.matches) setOpen(false);
+	});
+</script>

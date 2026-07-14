@@ -1,0 +1,8 @@
+---
+const { target = 'detail', label = 'SCROLL' } = Astro.props;
+---
+
+<a class="scroll-indicator" href={`#${target}`} aria-label={`${label}，进入详细内容`}>
+	<span>{label}</span>
+	<small>VIEW DETAILS</small>
+</a>

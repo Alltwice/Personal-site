@@ -1,32 +1,42 @@
 ---
 import BaseLayout from '../../layouts/BaseLayout.astro';
-import BackLink from '../../components/BackLink.astro';
+import ShowcaseLayout from '../../components/ShowcaseLayout.astro';
+import ProfilePanel from '../../components/ProfilePanel.astro';
+import ShowcaseVisual from '../../components/ShowcaseVisual.astro';
+import ScrollIndicator from '../../components/ScrollIndicator.astro';
+import DetailSection from '../../components/DetailSection.astro';
 import PostCard from '../../components/PostCard.astro';
 import { getPostsByDate } from '../../data/posts';
 
 const sortedPosts = getPostsByDate();
+const latestPost = sortedPosts[0];
 ---
 
 <BaseLayout title="文章 | Personal Site" description="个人站文章列表。">
-	<div class="page-shell">
-		<BackLink href="/" label="返回首页" />
+	<ShowcaseLayout pageLabel="Blog" label="Index / 02" titleId="blog-title" detailId="blog-detail" variant="listing">
+		<ProfilePanel slot="profile" name="ARTICLE INDEX" role={`${sortedPosts.length} entries`} status="Updated archive" />
+		<div slot="intro" class="showcase-copy">
+			<p class="showcase-copy__kicker">Notes, process and decisions.</p>
+			<h1 id="blog-title">文章<br /><span>思考的阶段存档。</span></h1>
+			<p class="showcase-copy__lead">按时间或阅读热度浏览现有文章，记录从问题到选择的过程。</p>
+		</div>
+		<ShowcaseVisual slot="visual" alt="文章页面的蓝灰色线稿人物主视觉" />
+		<div slot="meta" class="showcase-stat">
+			<small>LATEST ENTRY</small><strong>{latestPost?.date}</strong><p>{latestPost?.title}</p>
+		</div>
+		<ScrollIndicator slot="indicator" target="blog-detail" label="READ" />
+	</ShowcaseLayout>
 
-		<section class="page-hero blog-toolbar">
-			<div>
-				<p class="section-kicker">Blog</p>
-				<h1 class="page-title">文章</h1>
-				<p class="page-copy">按时间或热度浏览文章。热度暂时使用 mock views 字段。</p>
-			</div>
-
+	<div class="detail-stack" id="blog-detail">
+		<DetailSection id="article-archive" number="01" label="Archive" title="全部文章" description="可在浏览器端切换排序方式，不改变文章数据。">
 			<div class="sort-controls" aria-label="文章排序">
 				<a class="button is-active" href="/blog?sort=date" data-sort-link="date">按时间</a>
 				<a class="button" href="/blog?sort=views" data-sort-link="views">按热度</a>
 			</div>
-		</section>
-
-		<section class="card-grid" data-post-grid aria-label="文章列表">
-			{sortedPosts.map((post) => <PostCard post={post} />)}
-		</section>
+			<div class="card-grid" data-post-grid aria-label="文章列表">
+				{sortedPosts.map((post) => <PostCard post={post} />)}
+			</div>
+		</DetailSection>
 	</div>
 
 	<script>
@@ -34,31 +44,17 @@ const sortedPosts = getPostsByDate();
 		const sortLinks = document.querySelectorAll('[data-sort-link]');
 		const params = new URLSearchParams(window.location.search);
 		const sort = params.get('sort') === 'views' ? 'views' : 'date';
-
 		if (grid) {
 			const cards = Array.from(grid.children);
 			cards.sort((first, second) => {
-				if (!(first instanceof HTMLElement) || !(second instanceof HTMLElement)) {
-					return 0;
-				}
-
-				if (sort === 'views') {
-					return Number(second.dataset.views) - Number(first.dataset.views);
-				}
-
-				return (
-					new Date(second.dataset.date || '').getTime() -
-					new Date(first.dataset.date || '').getTime()
-				);
+				if (!(first instanceof HTMLElement) || !(second instanceof HTMLElement)) return 0;
+				if (sort === 'views') return Number(second.dataset.views) - Number(first.dataset.views);
+				return new Date(second.dataset.date || '').getTime() - new Date(first.dataset.date || '').getTime();
 			});
-
 			cards.forEach((card) => grid.appendChild(card));
 		}
-
 		sortLinks.forEach((link) => {
-			if (link instanceof HTMLElement) {
-				link.classList.toggle('is-active', link.dataset.sortLink === sort);
-			}
+			if (link instanceof HTMLElement) link.classList.toggle('is-active', link.dataset.sortLink === sort);
 		});
 	</script>
 </BaseLayout>

@@ -3,25 +3,24 @@ const { isHome = false } = Astro.props;
 ---
 
 <footer class:list={['site-footer', isHome && 'site-footer--home']}>
-	<p>v0.2.1 site skeleton built with Astro.</p>
+	<p>PERSONAL LOG / BUILT WITH ASTRO / 2026</p>
+	<a href="#top">返回顶部</a>
 </footer>
 
 <style>
 	.site-footer {
+		display: flex;
 		max-width: var(--content-width);
-		margin: 0 auto 0
-			calc(
-				var(--sidebar-width) + max(
-						var(--space-5),
-						(100vw - var(--sidebar-width) - var(--content-width)) / 2
-					)
-			);
+		margin: 0 auto;
+		justify-content: space-between;
 		padding: var(--space-6) var(--space-5);
 		border-top: 1px solid var(--color-line);
 		color: var(--color-muted);
 		font-family: var(--font-mono);
 		font-size: 0.76rem;
 	}
+
+	.site-footer a:hover { color: var(--color-accent); }
 
 	.site-footer--home {
 		border-top: 0;

@@ -1,6 +1,11 @@
 ---
 import BaseLayout from '../layouts/BaseLayout.astro';
+import ShowcaseLayout from '../components/ShowcaseLayout.astro';
+import ProfilePanel from '../components/ProfilePanel.astro';
 import CurrentTime from '../components/CurrentTime.astro';
+import ShowcaseVisual from '../components/ShowcaseVisual.astro';
+import ScrollIndicator from '../components/ScrollIndicator.astro';
+import DetailSection from '../components/DetailSection.astro';
 import PostCard from '../components/PostCard.astro';
 import ProjectCard from '../components/ProjectCard.astro';
 import { getPostsByDate } from '../data/posts';
@@ -10,64 +15,61 @@ const latestPosts = getPostsByDate().slice(0, 3);
 const homeProjects = featuredProjects.slice(0, 3);
 ---
 
-<BaseLayout title="Personal Site | 首页" description="个人站 v0.2 网站骨架。">
-	<div class="home-shell">
-		<section id="home" class="home-section" aria-labelledby="home-title">
-			<p class="section-kicker">Home</p>
-			<h1 id="home-title" class="hero-title">一个用于记录文章与项目的个人站点</h1>
-			<p class="hero-copy">
-				v0.2 继续完善功能和基础排版：保留清晰的页面结构，加入实时当前时间，并为后续视觉迭代留出稳定空间。
+<BaseLayout title="Personal Site | 首页" description="记录文章、项目与持续学习的个人站点。">
+	<ShowcaseLayout pageLabel="Home" label="Index / 01" titleId="home-title" detailId="home-detail" variant="home">
+		<ProfilePanel slot="profile" name="YOUR NAME" role="Creative developer" />
+
+		<div slot="intro" class="showcase-copy">
+			<p class="showcase-copy__kicker">Hello, this is my personal log.</p>
+			<h1 id="home-title">记录想法，<br /><span>构建正在发生的事。</span></h1>
+			<p class="showcase-copy__lead">
+				一个以文章、项目和学习轨迹为核心的个人空间。保持简洁，也保留继续生长的接口。
 			</p>
 			<CurrentTime />
-		</section>
+		</div>
 
-		<section id="articles" class="home-section" aria-labelledby="articles-title">
-			<div class="section-header">
-				<div class="section-heading">
-					<p class="section-kicker">Articles</p>
-					<h2 id="articles-title">最新文章</h2>
-					<p>先用 mock 数据展示最新文章卡片，列表页支持按时间和按热度排序。</p>
-				</div>
-				<div class="section-actions">
-					<a class="button" href="/blog">更多文章</a>
-				</div>
-			</div>
+		<ShowcaseVisual slot="visual" />
 
-			<div class="card-grid">
-				{latestPosts.map((post) => <PostCard post={post} />)}
-			</div>
-		</section>
+		<div slot="meta" class="showcase-panels" aria-label="当前状态">
+			<article><small>01 / FOCUS</small><strong>Astro + Content</strong><p>建立清晰、可维护的个人内容系统。</p></article>
+			<article><small>02 / STATUS</small><strong>Learning in public</strong><p>把实践过程整理成可以回看的记录。</p></article>
+		</div>
 
-		<section id="projects" class="home-section" aria-labelledby="projects-title">
-			<div class="section-header">
-				<div class="section-heading">
-					<p class="section-kicker">Projects</p>
-					<h2 id="projects-title">精选项目</h2>
-					<p>项目卡片展示当前重点方向，并链接到每个项目的详情页。</p>
-				</div>
-				<div class="section-actions">
-					<a class="button" href="/projects">更多项目</a>
-				</div>
-			</div>
+		<ScrollIndicator slot="indicator" target="home-detail" />
+	</ShowcaseLayout>
 
-			<div class="card-grid">
-				{homeProjects.map((project) => <ProjectCard project={project} />)}
+	<div class="detail-stack" id="home-detail">
+		<DetailSection id="introduction" number="01" label="Profile" title="个人介绍" description="这里是可替换的示例内容，用来说明这个站点正在记录什么。">
+			<div class="split-copy">
+				<p class="detail-lead">我关注设计与代码之间的距离，也在持续练习如何把模糊想法做成清晰、可使用的产品。</p>
+				<p>这个站点将承载阶段性笔记、项目复盘和正在学习的主题。内容不追求一次完成，而是留下真实的迭代轨迹。</p>
 			</div>
-		</section>
+		</DetailSection>
 
-		<section id="about" class="home-section about-section" aria-labelledby="about-title">
-			<div class="section-heading">
-				<p class="section-kicker">About</p>
-				<h2 id="about-title">关于</h2>
+		<DetailSection id="featured-articles" number="02" label="Articles" title="精选文章" description="从现有文章数据中选取最近发布的内容。">
+			<div class="card-grid">{latestPosts.map((post) => <PostCard post={post} />)}</div>
+			<a class="text-link" href="/blog">浏览全部文章 <span>View all</span></a>
+		</DetailSection>
+
+		<DetailSection id="featured-projects" number="03" label="Projects" title="精选项目" description="正在进行和准备继续完善的项目。">
+			<div class="card-grid">{homeProjects.map((project) => <ProjectCard project={project} />)}</div>
+			<a class="text-link" href="/projects">浏览全部项目 <span>View all</span></a>
+		</DetailSection>
+
+		<DetailSection id="learning" number="04" label="Learning" title="当前学习方向">
+			<div class="learning-grid">
+				<article><span>01</span><h3>内容架构</h3><p>让文章、项目与长期主题形成稳定关系。</p></article>
+				<article><span>02</span><h3>前端表达</h3><p>用克制的动效和响应式布局改善阅读体验。</p></article>
+				<article><span>03</span><h3>工作流</h3><p>把零散实验整理成可以重复使用的方法。</p></article>
 			</div>
-			<div class="about-copy">
-				<p>
-					这里暂时放置个人信息占位内容：可以介绍自己的背景、关注方向、正在学习或建设的项目，以及这个网站未来会承载的内容。
-				</p>
-				<p>
-					当前版本保持文字为主，不添加额外跳转和复杂设计。后续可以逐步替换为真实简介、经历、技能和联系方式。
-				</p>
+		</DetailSection>
+
+		<DetailSection id="contact" number="05" label="Contact" title="联系方式" description="以下为示例字段，可替换为真实邮箱和社交账号。">
+			<div class="contact-grid">
+				<div><small>EMAIL</small><strong>your.name@example.com</strong></div>
+				<div><small>SOCIAL</small><strong>@yourname</strong></div>
+				<div><small>LOCATION</small><strong>Asia / Shanghai</strong></div>
 			</div>
-		</section>
+		</DetailSection>
 	</div>
 </BaseLayout>

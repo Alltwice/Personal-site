@@ -1,55 +1,32 @@
-<div class="current-time" aria-live="polite">
-	<span class="current-time__label">当前时间</span>
-	<time class="current-time__value" data-current-time datetime="">--:--:--</time>
+<div class="current-time">
+	<span class="current-time__label">Local time / 浏览器时间</span>
+	<time data-current-time datetime="">
+		<span class="current-time__date" data-current-date>----.--.--</span>
+		<span class="current-time__clock" data-current-clock>-- : -- : --</span>
+	</time>
 </div>
 
 <script>
 	const timeElement = document.querySelector<HTMLTimeElement>('[data-current-time]');
-	const formatter = new Intl.DateTimeFormat('zh-CN', {
+	const dateElement = timeElement?.querySelector<HTMLElement>('[data-current-date]');
+	const clockElement = timeElement?.querySelector<HTMLElement>('[data-current-clock]');
+	const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
 		year: 'numeric',
-		month: '2-digit',
-		day: '2-digit',
-		weekday: 'long',
-		hour: '2-digit',
-		minute: '2-digit',
-		second: '2-digit',
+		month: '2-digit', day: '2-digit', weekday: 'short',
+	});
+	const clockFormatter = new Intl.DateTimeFormat('zh-CN', {
+		hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
 	});
 
 	const updateCurrentTime = () => {
-		if (!timeElement) {
-			return;
-		}
+		if (!timeElement || !dateElement || !clockElement) return;
 
 		const now = new Date();
 		timeElement.dateTime = now.toISOString();
-		timeElement.textContent = formatter.format(now);
+		dateElement.textContent = dateFormatter.format(now).replaceAll('/', '.');
+		clockElement.textContent = clockFormatter.format(now).replaceAll(':', ' : ');
 	};
 
 	updateCurrentTime();
 	window.setInterval(updateCurrentTime, 1000);
 </script>
-
-<style>
-	.current-time {
-		display: grid;
-		width: fit-content;
-		gap: var(--space-1);
-		border-left: 2px solid var(--color-accent);
-		padding: var(--space-2) 0 var(--space-2) var(--space-4);
-	}
-
-	.current-time__label {
-		color: var(--color-muted);
-		font-family: var(--font-mono);
-		font-size: 0.78rem;
-		font-weight: 700;
-		text-transform: uppercase;
-	}
-
-	.current-time__value {
-		color: var(--color-text);
-		font-family: var(--font-mono);
-		font-size: clamp(1.05rem, 2vw, 1.35rem);
-		font-weight: 700;
-	}
-</style>

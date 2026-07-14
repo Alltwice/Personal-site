@@ -1,0 +1,24 @@
+---
+const {
+	name = 'YOUR NAME',
+	role = 'Creative developer',
+	location = 'Asia / Shanghai',
+	status = 'Available for ideas',
+} = Astro.props;
+---
+
+<aside class="profile-panel" aria-label="个人信息">
+	<div class="profile-panel__identity" aria-hidden="true">
+		<span>PROFILE</span>
+		<strong>01</strong>
+	</div>
+	<div class="profile-panel__name">
+		<p>ABOUT · PERSONAL LOG</p>
+		<h2>{name}</h2>
+		<span>{role}</span>
+	</div>
+	<dl class="profile-panel__facts">
+		<div><dt>LOC</dt><dd>{location}</dd></div>
+		<div><dt>NOW</dt><dd>{status}</dd></div>
+	</dl>
+</aside>
