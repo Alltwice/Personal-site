@@ -20,15 +20,16 @@ const homeProjects = featuredProjects.slice(0, 3);
 		<ProfilePanel slot="profile" name="Kristen" variant="social" />
 
 		<div slot="intro" class="showcase-copy">
-			<p class="showcase-copy__kicker">Hello, this is my personal log.</p>
-			<h1 id="home-title">记录想法，<br /><span>构建正在发生的事。</span></h1>
+			<p class="showcase-copy__kicker">Hello, this is my personal site.</p>
+			<h1 id="home-title">记录想法，<br /><span>构建正在发生的事</span></h1>
 			<p class="showcase-copy__lead">
-				一个以文章、项目和学习轨迹为核心的个人空间。保持简洁，也保留继续生长的接口。
+			————以博客，个人项目为主构建的个人空间，保持整洁，留下生长的接口
 			</p>
-			<CurrentTime />
 		</div>
 
 		<ShowcaseVisual slot="visual" />
+
+		<CurrentTime slot="meta" />
 
 		<ScrollIndicator slot="indicator" target="home-detail" />
 	</ShowcaseLayout>

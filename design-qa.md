@@ -1,38 +1,59 @@
-# Design QA — 首页 1920×1080 参考图重排
+# Design QA — 首页时间与 Scroll 重排
 
-## 对照目标
+## Comparison Target
 
-- 参考图：`C:\Users\31482\Downloads\ChatGPT Image 2026年7月14日 11_28_42.png`
-- 实现页面：本地 Astro 首页 `/`
-- 主校准视口：1920 × 1080
-- 补充视口：1680 × 945、1440 × 900、980px、390 × 844、320 × 844
+- Source visual truth: `C:\Users\31482\Desktop\参考图.png`
+- Implementation route: `http://localhost:4321/`
+- Intended primary viewport: `1917 × 1002`
+- Additional responsive viewports: `1280 × 720`, `980 × 720`, `390 × 844`
+- State: 首页默认态，时间运行中，Scroll 指向 `#home-detail`
 
-## 已完成的工程检查
+## Evidence
 
-- 首页首屏已重排为内嵌导航、左侧长条个人卡、中部标题与分段时钟、右侧 `Rei.png` 主视觉。
-- 品牌已更新为 `Kristen.LOG / PERSONAL LOG`，导航使用真实路由、图标、激活下划线和原有滚动收起逻辑。
-- 首页已移除两张状态卡，Scroll 锚点保留在首屏底部。
-- 个人卡使用用户提供的头像与四个社交 PNG，并保留跳转、复制及状态提示。
-- 新增浏览器定位与 Open-Meteo 天气数据；定位失败回退上海，接口失败提供稳定错误态和重试按钮。
-- 时间区按时、分、秒独立显示并每秒更新。
-- 首页人物视觉容器已恢复为接近整屏宽度，避免透明画布在右侧窄容器内被二次缩小。
-- 头像已改为 `/about` 链接，悬停和键盘聚焦时显示黑色遮罩及与导航一致的 `ph-user` 图标。
-- 个人卡头像与社交按钮已缩小，说明文字已放大；天气更新时间固定在 Weather 区域右下角。
-- 桌面卡片高度使用视口约束，并为高度不超过 820px 的桌面增加紧凑样式，避免下边框落出首屏。
-- `npm run build` 已成功生成全部 12 个静态页面，`git diff --check` 通过。
+- Source visual: 已通过本地图片查看器打开并确认。
+- Implementation screenshot: unavailable。
+- Full-view comparison: blocked；应用内浏览器运行时无法初始化，错误为 `Cannot redefine property: process`，因此不能生成同视口实现截图。
+- Focused region comparison: blocked；缺少实现截图，无法对时间区、上方文案和右下角 Scroll 做同画面对比。
 
-## 浏览器验证阻塞
+## Engineering Checks
 
-Codex 页面预览连接在浏览器绑定创建前失败，错误为 `Cannot redefine property: process`。因此无法生成 1920 × 1080 实现截图，也无法对参考图执行同视口视觉比较。按照 Product Design 的视觉 QA 门禁，构建成功和静态源码检查不能代替浏览器验证。
+- Astro 静态构建通过，共生成 12 个页面。
+- 首页开发服务器返回 HTTP 200。
+- 构建结果包含 `showcase__meta`、`data-current-time`、`showcase__indicator` 和 `href="#home-detail"`。
+- 时间已从文案区移至 `meta` 插槽；桌面端放大，移动端保留缩放规则。
+- Scroll 桌面端定位到首页右下角，移动端恢复正常流并右对齐。
+- `git diff --check` 通过。
 
-## 待浏览器恢复后验证
+## Required Fidelity Surfaces
 
-- 1920 × 1080 下导航、个人卡、标题、分段时钟、人物主视觉和 Scroll 的比例与对齐。
-- 头像裁切、人物图完整比例、个人卡高度以及首屏内无内容遮挡。
-- 头像默认态、悬停态、键盘聚焦态和 `/about` 跳转。
-- 1876×990、1280×720 与 980×720 下卡片完整下边框和天气更新时间位置。
-- 定位允许、拒绝、超时和天气接口失败、重试状态。
-- 390px 与 320px 下的纵向顺序及零横向溢出。
-- 社交跳转、复制提示、移动菜单、导航收起、键盘焦点和控制台错误。
+- Fonts and typography: 静态样式确认沿用现有字体、字重和颜色；缺少浏览器截图，无法确认最终光学比例与换行。
+- Spacing and layout rhythm: 代码已扩大文案内部间距，并重排时间与 Scroll；缺少同视口截图，无法确认实际留白和重叠情况。
+- Colors and visual tokens: 未修改现有颜色 token、背景或阴影。
+- Image quality and asset fidelity: 未生成或替换资产，继续使用现有头像、人物图和图标。
+- Copy and content: 未修改页面文案、时间格式或 Scroll 标签。
+- Responsiveness: 已配置 `1280px`、`980px`、`760px` 断点；缺少浏览器截图，无法完成视觉确认。
+- Interactions and accessibility: DOM 中保留时间脚本、Scroll 锚点与原有语义；无法在浏览器中验证每秒更新、点击、hover、focus 和控制台状态。
+
+## Findings
+
+- [P1] 缺少浏览器渲染证据
+  - Location: 首页整体、时间区、Scroll。
+  - Evidence: 参考图可用，但实现截图因浏览器初始化失败而不可用。
+  - Impact: 无法证明最终尺寸、底部对齐和响应式布局与参考图一致。
+  - Fix: 浏览器连接恢复后，在相同视口捕获实现截图，与参考图放入同一比较画面；修复任何 P0/P1/P2 差异后重新验证。
+
+## Comparison History
+
+- Pass 1: 工程实现和静态检查完成；视觉比较因浏览器初始化错误被阻塞，未进行视觉修正循环。
+
+## Implementation Checklist
+
+- [x] 移动时间到首页底部 `meta` 区域。
+- [x] 放大桌面时间并添加响应式尺寸。
+- [x] 将 Scroll 放到桌面右下角，移动端恢复正常流。
+- [x] 增加上方文案内部间距。
+- [x] 通过构建、HTTP 和差异检查。
+- [ ] 捕获同视口实现截图并完成设计对比。
+- [ ] 验证时间更新、Scroll 跳转、hover、focus 和浏览器控制台。
 
 final result: blocked
