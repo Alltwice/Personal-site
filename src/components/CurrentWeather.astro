@@ -12,7 +12,7 @@ const tencentMapKey =
 >
 	<div class="current-weather__heading">
 		<p id="weather-title">
-			Current location / 实时天气
+			Current location / Weather
 		</p>
 
 		<span data-weather-state>IP 定位中</span>
@@ -61,10 +61,6 @@ const tencentMapKey =
 	</div>
 
 	<div class="current-weather__footer">
-		<span data-weather-updated>
-			等待更新
-		</span>
-
 		<button
 			type="button"
 			data-weather-retry
@@ -73,13 +69,9 @@ const tencentMapKey =
 			重新加载
 		</button>
 
-		<a
-			href="https://lbs.qq.com/"
-			target="_blank"
-			rel="noreferrer"
-		>
-			腾讯位置服务
-		</a>
+		<span data-weather-updated>
+			等待更新
+		</span>
 	</div>
 </section>
 
@@ -1011,7 +1003,7 @@ const tencentMapKey =
 
 					if (state) {
 						state.textContent =
-							'IP 估算';
+							'LOCATION';
 					}
 
 					if (location) {
