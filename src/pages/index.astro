@@ -17,7 +17,7 @@ const homeProjects = featuredProjects.slice(0, 3);
 
 <BaseLayout title="Personal Site | 首页" description="记录文章、项目与持续学习的个人站点。">
 	<ShowcaseLayout pageLabel="Home" label="Index / 01" titleId="home-title" detailId="home-detail" variant="home">
-		<ProfilePanel slot="profile" name="YOUR NAME" role="Creative developer" />
+		<ProfilePanel slot="profile" name="Kristen" variant="social" />
 
 		<div slot="intro" class="showcase-copy">
 			<p class="showcase-copy__kicker">Hello, this is my personal log.</p>
@@ -29,11 +29,6 @@ const homeProjects = featuredProjects.slice(0, 3);
 		</div>
 
 		<ShowcaseVisual slot="visual" />
-
-		<div slot="meta" class="showcase-panels" aria-label="当前状态">
-			<article><small>01 / FOCUS</small><strong>Astro + Content</strong><p>建立清晰、可维护的个人内容系统。</p></article>
-			<article><small>02 / STATUS</small><strong>Learning in public</strong><p>把实践过程整理成可以回看的记录。</p></article>
-		</div>
 
 		<ScrollIndicator slot="indicator" target="home-detail" />
 	</ShowcaseLayout>

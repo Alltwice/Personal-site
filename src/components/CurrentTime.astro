@@ -1,30 +1,44 @@
 <div class="current-time">
 	<span class="current-time__label">Local time / 浏览器时间</span>
-	<time data-current-time datetime="">
+	<time data-current-time datetime="" aria-label="当前浏览器时间">
 		<span class="current-time__date" data-current-date>----.--.--</span>
-		<span class="current-time__clock" data-current-clock>-- : -- : --</span>
+		<span class="current-time__digits" aria-hidden="true">
+			<strong data-current-hour>--</strong>
+			<i>:</i>
+			<strong data-current-minute>--</strong>
+			<i>:</i>
+			<strong data-current-second>--</strong>
+		</span>
 	</time>
 </div>
 
 <script>
 	const timeElement = document.querySelector<HTMLTimeElement>('[data-current-time]');
 	const dateElement = timeElement?.querySelector<HTMLElement>('[data-current-date]');
-	const clockElement = timeElement?.querySelector<HTMLElement>('[data-current-clock]');
+	const hourElement = timeElement?.querySelector<HTMLElement>('[data-current-hour]');
+	const minuteElement = timeElement?.querySelector<HTMLElement>('[data-current-minute]');
+	const secondElement = timeElement?.querySelector<HTMLElement>('[data-current-second]');
 	const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
-		year: 'numeric',
-		month: '2-digit', day: '2-digit', weekday: 'short',
-	});
-	const clockFormatter = new Intl.DateTimeFormat('zh-CN', {
-		hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+		year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short',
 	});
 
 	const updateCurrentTime = () => {
-		if (!timeElement || !dateElement || !clockElement) return;
-
+		if (!timeElement || !dateElement || !hourElement || !minuteElement || !secondElement) return;
 		const now = new Date();
+		const parts = new Intl.DateTimeFormat('zh-CN', {
+			hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
+		}).formatToParts(now);
+		const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? '--';
+		const date = dateFormatter.format(now).replaceAll('/', '.');
+		const hour = value('hour');
+		const minute = value('minute');
+		const second = value('second');
 		timeElement.dateTime = now.toISOString();
-		dateElement.textContent = dateFormatter.format(now).replaceAll('/', '.');
-		clockElement.textContent = clockFormatter.format(now).replaceAll(':', ' : ');
+		timeElement.setAttribute('aria-label', `${date} ${hour}时${minute}分${second}秒`);
+		dateElement.textContent = date;
+		hourElement.textContent = hour;
+		minuteElement.textContent = minute;
+		secondElement.textContent = second;
 	};
 
 	updateCurrentTime();

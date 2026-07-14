@@ -1,16 +1,24 @@
 ---
 import TagList from './TagList.astro';
 
-const { post } = Astro.props;
+const { post, variant = 'card', category } = Astro.props;
 ---
 
-<a class="post-card" href={`/blog/${post.slug}`} data-date={post.date} data-views={post.views}>
+<a
+	class:list={['post-card', variant === 'row' && 'post-card--row']}
+	href={`/blog/${post.slug}`}
+	data-date={post.date}
+	data-views={post.views}
+	data-category={category}
+>
 	<div class="post-card__meta">
 		<time datetime={post.date}>{post.date}</time>
 		<span>{post.views.toLocaleString('zh-CN')} views</span>
 	</div>
-	<h3>{post.title}</h3>
-	<p>{post.excerpt}</p>
+	<div class="post-card__body">
+		<h3>{post.title}</h3>
+		<p>{post.excerpt}</p>
+	</div>
 	<TagList tags={post.tags} />
 </a>
 
@@ -63,6 +71,11 @@ const { post } = Astro.props;
 		line-height: 1.25;
 	}
 
+	.post-card__body {
+		display: grid;
+		gap: var(--space-3);
+	}
+
 	.post-card p {
 		color: var(--color-muted);
 	}
@@ -79,5 +92,50 @@ const { post } = Astro.props;
 
 	.post-card__meta span {
 		color: var(--color-accent);
+	}
+
+	.post-card--row {
+		--tag-list-margin: 0;
+		display: grid;
+		min-height: 164px;
+		grid-template-columns: minmax(118px, 0.24fr) minmax(260px, 1fr) minmax(150px, 0.32fr);
+		align-items: center;
+		gap: clamp(var(--space-4), 3vw, var(--space-7));
+	}
+
+	.post-card--row .post-card__meta {
+		align-self: stretch;
+		flex-direction: column;
+		align-items: flex-start;
+		justify-content: center;
+		border-right: 1px solid var(--color-line);
+	}
+
+	.post-card--row :global(.tag-list) {
+		align-content: center;
+		align-self: stretch;
+		border-left: 1px solid var(--color-line);
+		padding-left: var(--space-5);
+	}
+
+	@media (max-width: 760px) {
+		.post-card--row {
+			display: flex;
+			min-height: 230px;
+		}
+
+		.post-card--row .post-card__meta {
+			width: 100%;
+			align-self: auto;
+			flex-direction: row;
+			justify-content: space-between;
+			border-right: 0;
+		}
+
+		.post-card--row :global(.tag-list) {
+			align-self: auto;
+			border-left: 0;
+			padding-left: 0;
+		}
 	}
 </style>

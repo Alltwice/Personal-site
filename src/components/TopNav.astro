@@ -2,10 +2,10 @@
 const { currentPath = '/' } = Astro.props;
 
 const items = [
-	{ href: '/', label: '主页' },
-	{ href: '/blog', label: '文章' },
-	{ href: '/projects', label: '项目' },
-	{ href: '/about', label: '关于' },
+	{ href: '/', label: '主页', icon: 'ph-house-line' },
+	{ href: '/blog', label: '文章', icon: 'ph-article' },
+	{ href: '/projects', label: '项目', icon: 'ph-folder' },
+	{ href: '/about', label: '关于', icon: 'ph-user' },
 ];
 
 const isCurrent = (href: string) =>
@@ -14,8 +14,8 @@ const isCurrent = (href: string) =>
 
 <header class="top-nav" data-top-nav>
 	<a class="top-nav__brand" href="/" aria-label="返回主页">
-		<span class="top-nav__brand-mark">01</span>
-		<span>REI.LOG</span>
+		<span class="top-nav__brand-mark" aria-hidden="true"></span>
+		<span class="top-nav__brand-copy"><strong>Kristen.LOG</strong><small>PERSONAL LOG</small></span>
 	</a>
 
 	<button
@@ -31,8 +31,8 @@ const isCurrent = (href: string) =>
 	<nav id="primary-navigation" class="top-nav__links" aria-label="主导航" data-nav-menu>
 		{items.map((item) => (
 			<a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>
+				<i class={`ph ${item.icon}`} aria-hidden="true"></i>
 				<span>{item.label}</span>
-				<small>{String(items.indexOf(item) + 1).padStart(2, '0')}</small>
 			</a>
 		))}
 	</nav>
@@ -49,6 +49,25 @@ const isCurrent = (href: string) =>
 		nav.classList.toggle('is-open', open);
 		toggle.setAttribute('aria-expanded', String(open));
 		label.textContent = open ? '关闭' : '菜单';
+	};
+
+	const detail = document.querySelector<HTMLElement>('.detail-stack');
+	let scrollFrame = 0;
+
+	const updateVisibility = () => {
+		scrollFrame = 0;
+		if (!nav || !detail) return;
+
+		const hidden = detail.getBoundingClientRect().top <= 0;
+		nav.classList.toggle('is-hidden', hidden);
+		nav.toggleAttribute('inert', hidden);
+		nav.setAttribute('aria-hidden', String(hidden));
+		if (hidden) setOpen(false);
+	};
+
+	const requestVisibilityUpdate = () => {
+		if (scrollFrame) return;
+		scrollFrame = window.requestAnimationFrame(updateVisibility);
 	};
 
 	toggle?.addEventListener('click', () => {
@@ -69,4 +88,10 @@ const isCurrent = (href: string) =>
 	window.matchMedia('(min-width: 761px)').addEventListener('change', (event) => {
 		if (event.matches) setOpen(false);
 	});
+
+	if (detail) {
+		updateVisibility();
+		window.addEventListener('scroll', requestVisibilityUpdate, { passive: true });
+		window.addEventListener('resize', requestVisibilityUpdate);
+	}
 </script>

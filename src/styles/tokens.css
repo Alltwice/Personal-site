@@ -1,6 +1,6 @@
 :root {
 	color-scheme: dark;
-	--color-bg: #08090b;
+	--color-bg: #1a1d23;
 	--color-surface: #111318;
 	--color-surface-raised: #181b22;
 	--color-surface-muted: #20242d;
@@ -34,5 +34,5 @@
 	--space-9: 6rem;
 	--space-10: 8rem;
 	--content-width: 1540px;
-	--nav-height: 72px;
+	--nav-height: 64px;
 }

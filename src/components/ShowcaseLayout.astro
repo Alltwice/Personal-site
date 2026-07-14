@@ -17,10 +17,10 @@ const {
 		<span>{label}</span>
 		<span>{pageLabel} / 2026</span>
 	</div>
-	<div class="showcase__profile"><slot name="profile" /></div>
-	<div class="showcase__intro"><slot name="intro" /></div>
-	<div class="showcase__visual"><slot name="visual" /></div>
-	<div class="showcase__meta"><slot name="meta" /></div>
-	<div class="showcase__indicator"><slot name="indicator" /></div>
+	{Astro.slots.has('profile') && <div class="showcase__profile"><slot name="profile" /></div>}
+	{Astro.slots.has('intro') && <div class="showcase__intro"><slot name="intro" /></div>}
+	{Astro.slots.has('visual') && <div class="showcase__visual"><slot name="visual" /></div>}
+	{Astro.slots.has('meta') && <div class="showcase__meta"><slot name="meta" /></div>}
+	{Astro.slots.has('indicator') && <div class="showcase__indicator"><slot name="indicator" /></div>}
 	<a class="showcase__skip" href={`#${detailId}`}>跳到详细内容</a>
 </section>

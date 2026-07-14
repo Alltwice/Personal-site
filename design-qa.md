@@ -1,56 +1,35 @@
-# Design QA — Showcase + Detail refactor
+# Design QA — 首页 1920×1080 参考图重排
 
-## Comparison target
+## 对照目标
 
-- Source visual truth: `C:\Users\31482\Desktop\首页参考图.png`
-- Desktop implementation screenshot: `C:\Users\31482\.codex\visualizations\2026\07\11\019f4fc3-b96c-71e2-893b-bd0686cb2a42\home-desktop-1918x997.png`
-- Mobile implementation screenshot: `C:\Users\31482\.codex\visualizations\2026\07\11\019f4fc3-b96c-71e2-893b-bd0686cb2a42\home-mobile-top-390x844.png`
-- Desktop viewport/state: 1918 × 997, `/`, top of page, current navigation selected.
-- Mobile viewport/state: 390 × 844, `/`, top of page, navigation closed.
+- 参考图：`C:\Users\31482\Downloads\ChatGPT Image 2026年7月14日 11_28_42.png`
+- 实现页面：本地 Astro 首页 `/`
+- 主校准视口：1920 × 1080
+- 补充视口：1680 × 945、1440 × 900、980px、390 × 844、320 × 844
 
-## Full-view comparison evidence
+## 已完成的工程检查
 
-The source and desktop implementation were opened together at the same 1918 × 997 viewport. Both use a light fixed top navigation, dark full-height canvas, left profile card, central information stage, right-aligned Rei line-art image, and bottom scroll prompt. The implementation intentionally replaces the mock's oversized time-only headline with the requested hierarchy of title, introduction, live time, and two information panels while retaining the same asymmetric visual weight.
+- 首页首屏已重排为内嵌导航、左侧长条个人卡、中部标题与分段时钟、右侧 `Rei.png` 主视觉。
+- 品牌已更新为 `Kristen.LOG / PERSONAL LOG`，导航使用真实路由、图标、激活下划线和原有滚动收起逻辑。
+- 首页已移除两张状态卡，Scroll 锚点保留在首屏底部。
+- 个人卡使用用户提供的头像与四个社交 PNG，并保留跳转、复制及状态提示。
+- 新增浏览器定位与 Open-Meteo 天气数据；定位失败回退上海，接口失败提供稳定错误态和重试按钮。
+- 时间区按时、分、秒独立显示并每秒更新。
+- 首页人物视觉容器已恢复为接近整屏宽度，避免透明画布在右侧窄容器内被二次缩小。
+- 头像已改为 `/about` 链接，悬停和键盘聚焦时显示黑色遮罩及与导航一致的 `ph-user` 图标。
+- `npm run build` 已成功生成全部 12 个静态页面，`git diff --check` 通过。
 
-## Focused comparison evidence
+## 浏览器验证阻塞
 
-- Navigation: the implementation preserves the wide light bar, four evenly distributed destinations, strong black type, rounded outer corners, and a dark active state.
-- Main composition: the title and time occupy the source's central information zone without colliding with the transparent portrait; the profile panel remains anchored at lower left.
-- Image: the supplied RGBA `Rei.png` is rendered through Astro's image pipeline with `object-fit: contain`; desktop placement preserves its original proportions and right-edge crop.
-- Mobile: a dedicated 390 × 844 capture confirms the requested order of title → portrait → profile panel, with no horizontal overflow.
+Codex 页面预览连接在浏览器绑定创建前失败，错误为 `Cannot redefine property: process`。因此无法生成 1920 × 1080 实现截图，也无法对参考图执行同视口视觉比较。按照 Product Design 的视觉 QA 门禁，构建成功和静态源码检查不能代替浏览器验证。
 
-## Required fidelity surfaces
+## 待浏览器恢复后验证
 
-- Fonts and typography: system sans and Cascadia-compatible mono fallbacks create the source's geometric/technical hierarchy; display text, labels, time, and metadata remain readable at all tested widths.
-- Spacing and layout rhythm: desktop matches the source's three-zone asymmetry; Detail sections use a consistent index/header/content rhythm. Showcase height equals or exceeds the viewport at 1918, 1440, 980, 390, and 320 widths.
-- Colors and tokens: black, off-white, graphite gray, and restrained cool blue map to the requested palette with sufficient text contrast.
-- Image quality and asset fidelity: the supplied transparent PNG is used directly and optimized to WebP variants by Astro. No replacement illustration, handcrafted SVG, CSS drawing, gradient, or placeholder image is used.
-- Copy and content: all requested homepage Detail topics are present; post/project cards are populated from the unchanged data modules, and personal/contact values are clearly presented as examples.
+- 1920 × 1080 下导航、个人卡、标题、分段时钟、人物主视觉和 Scroll 的比例与对齐。
+- 头像裁切、人物图完整比例、个人卡高度以及首屏内无内容遮挡。
+- 头像默认态、悬停态、键盘聚焦态和 `/about` 跳转。
+- 定位允许、拒绝、超时和天气接口失败、重试状态。
+- 390px 与 320px 下的纵向顺序及零横向溢出。
+- 社交跳转、复制提示、移动菜单、导航收起、键盘焦点和控制台错误。
 
-## Interaction and responsive checks
-
-- Verified `/`, `/blog`, `/projects`, `/about`, one blog slug, and one project slug in the in-app browser.
-- Verified mobile menu open/close state, `aria-expanded`, Escape close behavior, active navigation, blog `?sort=views`, and per-second clock updates.
-- Verified 1918 × 997, 1440 × 900, 980 × 900, 390 × 844, and 320 × 844.
-- At 320px, document scroll width equals viewport width; at the other tested sizes content remains within the client width.
-- Browser console: no warnings or errors.
-
-## Comparison history
-
-1. Initial mobile capture found the portrait outside the visible crop because the source PNG contains a large transparent left region. Classified P1 because the requested mobile visual was absent.
-2. The mobile figure canvas was repositioned while retaining `object-fit: contain`; the follow-up 390 × 844 and 320 × 844 captures show the complete portrait after the title and before the profile card. The P1 is resolved.
-
-## Findings
-
-- No actionable P0, P1, or P2 issues remain.
-- P3: the implementation profile card is more compact than the sketch. This is acceptable because it prevents the real title/time content from colliding at common laptop heights.
-
-## Implementation checklist
-
-- [x] Real-route TopNav and accessible mobile menu
-- [x] Showcase + Detail on all four primary routes
-- [x] Existing data and slug routes preserved
-- [x] Responsive portrait placement and zero horizontal overflow
-- [x] Browser interaction, console, build, and visual comparison checks
-
-final result: passed
+final result: blocked

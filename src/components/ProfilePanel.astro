@@ -1,24 +1,124 @@
 ---
+import { Image } from 'astro:assets';
+import avatar from '../assets/头像.png';
+import githubIcon from '../assets/Github.png';
+import bilibiliIcon from '../assets/billbill.png';
+import qqIcon from '../assets/QQ.png';
+import emailIcon from '../assets/email.png';
+import CurrentWeather from './CurrentWeather.astro';
+
 const {
 	name = 'YOUR NAME',
 	role = 'Creative developer',
 	location = 'Asia / Shanghai',
 	status = 'Available for ideas',
+	variant = 'default',
 } = Astro.props;
+
+const isSocial = variant === 'social';
 ---
 
-<aside class="profile-panel" aria-label="个人信息">
-	<div class="profile-panel__identity" aria-hidden="true">
-		<span>PROFILE</span>
-		<strong>01</strong>
-	</div>
-	<div class="profile-panel__name">
-		<p>ABOUT · PERSONAL LOG</p>
-		<h2>{name}</h2>
-		<span>{role}</span>
-	</div>
-	<dl class="profile-panel__facts">
-		<div><dt>LOC</dt><dd>{location}</dd></div>
-		<div><dt>NOW</dt><dd>{status}</dd></div>
-	</dl>
+<aside
+	class:list={['profile-panel', { 'profile-panel--social': isSocial }]}
+	aria-label="个人信息"
+	data-profile-panel={isSocial ? '' : undefined}
+>
+	{isSocial ? (
+		<>
+			<a class="profile-panel__avatar-link" href="/about" aria-label="查看关于 Kristen">
+				<Image
+					class="profile-panel__avatar"
+					src={avatar}
+					alt="Kristen 的头像"
+					width={500}
+					height={500}
+					loading="eager"
+				/>
+				<span class="profile-panel__avatar-overlay" aria-hidden="true">
+					<i class="ph ph-user"></i>
+				</span>
+			</a>
+			<div class="profile-panel__social-copy">
+				<h2>{name}</h2>
+				<span aria-hidden="true"></span>
+				<p>Everything is worth understanding.</p>
+			</div>
+			<nav class="profile-panel__socials" aria-label="社交账号">
+				<a href="https://github.com/Alltwice?tab=repositories" target="_blank" rel="noreferrer" aria-label="打开 GitHub">
+					<Image src={githubIcon} alt="" width={30} height={30} />
+				</a>
+				<a href="https://space.bilibili.com/2084087842?spm_id_from=333.1007.0.0" target="_blank" rel="noreferrer" aria-label="打开 Bilibili">
+					<Image src={bilibiliIcon} alt="" width={30} height={30} />
+				</a>
+				<button type="button" data-copy-value="3148289778" aria-label="复制 QQ 号">
+					<Image src={qqIcon} alt="" width={30} height={30} />
+				</button>
+				<button type="button" data-copy-value="3148289778@qq.com" aria-label="复制邮箱地址">
+					<Image src={emailIcon} alt="" width={30} height={30} />
+				</button>
+			</nav>
+			<CurrentWeather />
+			<p class="profile-panel__toast" role="status" aria-live="polite" data-copy-toast></p>
+		</>
+	) : (
+		<>
+			<div class="profile-panel__identity" aria-hidden="true">
+				<span>PROFILE</span>
+				<strong>01</strong>
+			</div>
+			<div class="profile-panel__name">
+				<p>ABOUT · PERSONAL LOG</p>
+				<h2>{name}</h2>
+				<span>{role}</span>
+			</div>
+			<dl class="profile-panel__facts">
+				<div><dt>LOC</dt><dd>{location}</dd></div>
+				<div><dt>NOW</dt><dd>{status}</dd></div>
+			</dl>
+		</>
+	)}
 </aside>
+
+{isSocial && (
+	<script>
+		const copyText = async (value: string) => {
+			if (navigator.clipboard?.writeText) {
+				await navigator.clipboard.writeText(value);
+				return;
+			}
+
+			const input = document.createElement('textarea');
+			input.value = value;
+			input.setAttribute('readonly', '');
+			input.style.position = 'fixed';
+			input.style.opacity = '0';
+			document.body.appendChild(input);
+			input.select();
+			const copied = document.execCommand('copy');
+			input.remove();
+			if (!copied) throw new Error('Copy command failed');
+		};
+
+		document.querySelectorAll<HTMLElement>('[data-profile-panel]').forEach((panel) => {
+			const toast = panel.querySelector<HTMLElement>('[data-copy-toast]');
+			let hideTimer: number | undefined;
+
+			panel.querySelectorAll<HTMLButtonElement>('[data-copy-value]').forEach((button) => {
+				button.addEventListener('click', async () => {
+					const value = button.dataset.copyValue;
+					if (!value || !toast) return;
+
+					window.clearTimeout(hideTimer);
+					try {
+						await copyText(value);
+						toast.textContent = `已复制 ${value} 到剪切板`;
+					} catch {
+						toast.textContent = `复制失败，请手动复制 ${value}`;
+					}
+					toast.classList.add('is-visible');
+					hideTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
+				});
+			});
+		});
+	</script>
+)}
