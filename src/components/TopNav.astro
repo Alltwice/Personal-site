@@ -39,59 +39,112 @@ const isCurrent = (href: string) =>
 </header>
 
 <script>
-	const nav = document.querySelector<HTMLElement>('[data-top-nav]');
-	const toggle = nav?.querySelector<HTMLButtonElement>('[data-nav-toggle]');
-	const menu = nav?.querySelector<HTMLElement>('[data-nav-menu]');
-	const label = nav?.querySelector<HTMLElement>('[data-menu-label]');
-
-	const setOpen = (open: boolean) => {
-		if (!nav || !toggle || !label) return;
-		nav.classList.toggle('is-open', open);
-		toggle.setAttribute('aria-expanded', String(open));
-		label.textContent = open ? '关闭' : '菜单';
-	};
-
-	const detail = document.querySelector<HTMLElement>('.detail-stack');
+	let topNavController: AbortController | undefined;
 	let scrollFrame = 0;
 
-	const updateVisibility = () => {
+	function initializeTopNav() {
+		topNavController?.abort();
+		window.cancelAnimationFrame(scrollFrame);
 		scrollFrame = 0;
-		if (!nav || !detail) return;
 
-		const hidden = detail.getBoundingClientRect().top <= 0;
-		nav.classList.toggle('is-hidden', hidden);
-		nav.toggleAttribute('inert', hidden);
-		nav.setAttribute('aria-hidden', String(hidden));
-		if (hidden) setOpen(false);
-	};
+		const nav =
+			document.querySelector<HTMLElement>('[data-top-nav]');
 
-	const requestVisibilityUpdate = () => {
-		if (scrollFrame) return;
-		scrollFrame = window.requestAnimationFrame(updateVisibility);
-	};
+		if (!nav) return;
 
-	toggle?.addEventListener('click', () => {
-		setOpen(toggle.getAttribute('aria-expanded') !== 'true');
-	});
+		const controller = new AbortController();
+		const { signal } = controller;
+		topNavController = controller;
 
-	menu?.querySelectorAll('a').forEach((link) => {
-		link.addEventListener('click', () => setOpen(false));
-	});
+		const toggle =
+			nav.querySelector<HTMLButtonElement>('[data-nav-toggle]');
+		const menu =
+			nav.querySelector<HTMLElement>('[data-nav-menu]');
+		const label =
+			nav.querySelector<HTMLElement>('[data-menu-label]');
+		const detail =
+			document.querySelector<HTMLElement>('.detail-stack');
 
-	document.addEventListener('keydown', (event) => {
-		if (event.key === 'Escape') {
-			setOpen(false);
-			toggle?.focus();
+		const setOpen = (open: boolean) => {
+			if (!toggle || !label) return;
+			nav.classList.toggle('is-open', open);
+			toggle.setAttribute('aria-expanded', String(open));
+			label.textContent = open ? '关闭' : '菜单';
+		};
+
+		const updateVisibility = () => {
+			scrollFrame = 0;
+			if (!detail) return;
+
+			const hidden =
+				detail.getBoundingClientRect().top <= 0;
+			nav.classList.toggle('is-hidden', hidden);
+			nav.toggleAttribute('inert', hidden);
+			nav.setAttribute('aria-hidden', String(hidden));
+			if (hidden) setOpen(false);
+		};
+
+		const requestVisibilityUpdate = () => {
+			if (scrollFrame) return;
+			scrollFrame =
+				window.requestAnimationFrame(updateVisibility);
+		};
+
+		toggle?.addEventListener(
+			'click',
+			() => {
+				setOpen(
+					toggle.getAttribute('aria-expanded') !==
+						'true'
+				);
+			},
+			{ signal }
+		);
+
+		menu?.querySelectorAll('a').forEach((link) => {
+			link.addEventListener(
+				'click',
+				() => setOpen(false),
+				{ signal }
+			);
+		});
+
+		document.addEventListener(
+			'keydown',
+			(event) => {
+				if (event.key === 'Escape') {
+					setOpen(false);
+					toggle?.focus();
+				}
+			},
+			{ signal }
+		);
+
+		window
+			.matchMedia('(min-width: 761px)')
+			.addEventListener(
+				'change',
+				(event) => {
+					if (event.matches) setOpen(false);
+				},
+				{ signal }
+			);
+
+		if (detail) {
+			updateVisibility();
+			window.addEventListener(
+				'scroll',
+				requestVisibilityUpdate,
+				{ passive: true, signal }
+			);
+			window.addEventListener(
+				'resize',
+				requestVisibilityUpdate,
+				{ signal }
+			);
 		}
-	});
-
-	window.matchMedia('(min-width: 761px)').addEventListener('change', (event) => {
-		if (event.matches) setOpen(false);
-	});
-
-	if (detail) {
-		updateVisibility();
-		window.addEventListener('scroll', requestVisibilityUpdate, { passive: true });
-		window.addEventListener('resize', requestVisibilityUpdate);
 	}
+
+	initializeTopNav();
+	document.addEventListener('astro:page-load', initializeTopNav);
 </script>

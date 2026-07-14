@@ -13,34 +13,76 @@
 </div>
 
 <script>
-	const timeElement = document.querySelector<HTMLTimeElement>('[data-current-time]');
-	const dateElement = timeElement?.querySelector<HTMLElement>('[data-current-date]');
-	const hourElement = timeElement?.querySelector<HTMLElement>('[data-current-hour]');
-	const minuteElement = timeElement?.querySelector<HTMLElement>('[data-current-minute]');
-	const secondElement = timeElement?.querySelector<HTMLElement>('[data-current-second]');
-	const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
-		year: 'numeric', month: '2-digit', day: '2-digit', weekday: 'short',
-	});
+	let currentTimeTimer: number | undefined;
 
-	const updateCurrentTime = () => {
-		if (!timeElement || !dateElement || !hourElement || !minuteElement || !secondElement) return;
-		const now = new Date();
-		const parts = new Intl.DateTimeFormat('zh-CN', {
-			hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false,
-		}).formatToParts(now);
-		const value = (type: Intl.DateTimeFormatPartTypes) => parts.find((part) => part.type === type)?.value ?? '--';
-		const date = dateFormatter.format(now).replaceAll('/', '.');
-		const hour = value('hour');
-		const minute = value('minute');
-		const second = value('second');
-		timeElement.dateTime = now.toISOString();
-		timeElement.setAttribute('aria-label', `${date} ${hour}时${minute}分${second}秒`);
-		dateElement.textContent = date;
-		hourElement.textContent = hour;
-		minuteElement.textContent = minute;
-		secondElement.textContent = second;
-	};
+	function initializeCurrentTime() {
+		window.clearInterval(currentTimeTimer);
+		currentTimeTimer = undefined;
 
-	updateCurrentTime();
-	window.setInterval(updateCurrentTime, 1000);
+		const timeElement =
+			document.querySelector<HTMLTimeElement>('[data-current-time]');
+
+		if (!timeElement) return;
+
+		const dateElement =
+			timeElement.querySelector<HTMLElement>('[data-current-date]');
+		const hourElement =
+			timeElement.querySelector<HTMLElement>('[data-current-hour]');
+		const minuteElement =
+			timeElement.querySelector<HTMLElement>('[data-current-minute]');
+		const secondElement =
+			timeElement.querySelector<HTMLElement>('[data-current-second]');
+		const dateFormatter = new Intl.DateTimeFormat('zh-CN', {
+			year: 'numeric',
+			month: '2-digit',
+			day: '2-digit',
+			weekday: 'short',
+		});
+
+		const updateCurrentTime = () => {
+			if (
+				!dateElement ||
+				!hourElement ||
+				!minuteElement ||
+				!secondElement
+			) {
+				return;
+			}
+
+			const now = new Date();
+			const parts = new Intl.DateTimeFormat('zh-CN', {
+				hour: '2-digit',
+				minute: '2-digit',
+				second: '2-digit',
+				hour12: false,
+			}).formatToParts(now);
+			const value = (type: Intl.DateTimeFormatPartTypes) =>
+				parts.find((part) => part.type === type)?.value ?? '--';
+			const date =
+				dateFormatter.format(now).replaceAll('/', '.');
+			const hour = value('hour');
+			const minute = value('minute');
+			const second = value('second');
+
+			timeElement.dateTime = now.toISOString();
+			timeElement.setAttribute(
+				'aria-label',
+				`${date} ${hour}时${minute}分${second}秒`
+			);
+			dateElement.textContent = date;
+			hourElement.textContent = hour;
+			minuteElement.textContent = minute;
+			secondElement.textContent = second;
+		};
+
+		updateCurrentTime();
+		currentTimeTimer =
+			window.setInterval(updateCurrentTime, 1000);
+	}
+
+	initializeCurrentTime();
+	document.addEventListener(
+		'astro:page-load',
+		initializeCurrentTime
+	);
 </script>

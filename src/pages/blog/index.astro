@@ -24,7 +24,7 @@ const getPostCategory = (tags: string[]) =>
 
 <BaseLayout title="文章 | Personal Site" description="个人站文章列表。">
 	<ShowcaseLayout pageLabel="Blog" label="Index / 02" titleId="blog-title" detailId="blog-detail" variant="listing">
-		<ProfilePanel slot="profile" name="ARTICLE INDEX" role={`${sortedPosts.length} entries`} status="Updated archive" />
+		<ProfilePanel slot="profile" name="Kristen" variant="social" />
 		<div slot="intro" class="showcase-copy">
 			<p class="showcase-copy__kicker">Notes, process and decisions.</p>
 			<h1 id="blog-title">文章<br /><span>思考的阶段存档。</span></h1>
@@ -71,116 +71,251 @@ const getPostCategory = (tags: string[]) =>
 	</div>
 
 	<script>
-		const PAGE_SIZE = 10;
-		const validCategories = new Set(['all', 'tech', 'writing', 'project', 'ux', 'other']);
-		const validSorts = new Set(['date-desc', 'date-asc', 'views-desc']);
-		const grid = document.querySelector<HTMLElement>('[data-post-grid]');
-		const cards = grid ? Array.from(grid.children).filter((card): card is HTMLElement => card instanceof HTMLElement) : [];
-		const categorySelect = document.querySelector<HTMLSelectElement>('[data-category-filter]');
-		const sortSelect = document.querySelector<HTMLSelectElement>('[data-sort-filter]');
-		const result = document.querySelector<HTMLElement>('[data-archive-result]');
-		const empty = document.querySelector<HTMLElement>('[data-archive-empty]');
-		const pagination = document.querySelector<HTMLElement>('[data-archive-pagination]');
-		const previousButton = document.querySelector<HTMLButtonElement>('[data-page-previous]');
-		const nextButton = document.querySelector<HTMLButtonElement>('[data-page-next]');
-		const pageList = document.querySelector<HTMLElement>('[data-page-list]');
-
 		type ArchiveState = { category: string; sort: string; page: number };
+		let archiveController: AbortController | undefined;
 
-		const readState = (): ArchiveState => {
-			const params = new URLSearchParams(window.location.search);
-			const categoryParam = params.get('category') ?? 'all';
-			const sortParam = params.get('sort') ?? 'date-desc';
-			const pageParam = Number.parseInt(params.get('page') ?? '1', 10);
-			return {
-				category: validCategories.has(categoryParam) ? categoryParam : 'all',
-				sort: validSorts.has(sortParam) ? sortParam : 'date-desc',
-				page: Number.isFinite(pageParam) && pageParam > 0 ? pageParam : 1,
-			};
-		};
+		function initializeArchive() {
+			archiveController?.abort();
 
-		const writeState = (state: ArchiveState, replace = false) => {
-			const url = new URL(window.location.href);
-			url.searchParams.set('category', state.category);
-			url.searchParams.set('sort', state.sort);
-			url.searchParams.set('page', String(state.page));
-			if (replace) window.history.replaceState(null, '', url);
-			else window.history.pushState(null, '', url);
-		};
+			const grid =
+				document.querySelector<HTMLElement>('[data-post-grid]');
 
-		let state = readState();
+			if (!grid) return;
 
-		const render = (syncUrl = false) => {
-			if (!grid || !categorySelect || !sortSelect || !result || !empty || !pagination || !previousButton || !nextButton || !pageList) return;
+			const controller = new AbortController();
+			const { signal } = controller;
+			archiveController = controller;
+			const pageSize = 10;
+			const validCategories = new Set([
+				'all',
+				'tech',
+				'writing',
+				'project',
+				'ux',
+				'other',
+			]);
+			const validSorts = new Set([
+				'date-desc',
+				'date-asc',
+				'views-desc',
+			]);
+			const cards = Array.from(grid.children).filter(
+				(card): card is HTMLElement =>
+					card instanceof HTMLElement
+			);
+			const categorySelect =
+				document.querySelector<HTMLSelectElement>(
+					'[data-category-filter]'
+				);
+			const sortSelect =
+				document.querySelector<HTMLSelectElement>(
+					'[data-sort-filter]'
+				);
+			const result =
+				document.querySelector<HTMLElement>('[data-archive-result]');
+			const empty =
+				document.querySelector<HTMLElement>('[data-archive-empty]');
+			const pagination =
+				document.querySelector<HTMLElement>(
+					'[data-archive-pagination]'
+				);
+			const previousButton =
+				document.querySelector<HTMLButtonElement>(
+					'[data-page-previous]'
+				);
+			const nextButton =
+				document.querySelector<HTMLButtonElement>(
+					'[data-page-next]'
+				);
+			const pageList =
+				document.querySelector<HTMLElement>('[data-page-list]');
 
-			const filtered = cards.filter((card) => state.category === 'all' || card.dataset.category === state.category);
-			const sorted = [...filtered].sort((first, second) => {
-				if (state.sort === 'views-desc') return Number(second.dataset.views) - Number(first.dataset.views);
-				const firstDate = new Date(first.dataset.date ?? '').getTime();
-				const secondDate = new Date(second.dataset.date ?? '').getTime();
-				return state.sort === 'date-asc' ? firstDate - secondDate : secondDate - firstDate;
-			});
-			const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
-			state.page = Math.min(Math.max(1, state.page), totalPages);
-			const pageStart = (state.page - 1) * PAGE_SIZE;
-			const visibleCards = new Set(sorted.slice(pageStart, pageStart + PAGE_SIZE));
-
-			cards.forEach((card) => card.hidden = !visibleCards.has(card));
-			sorted.forEach((card) => grid.appendChild(card));
-			categorySelect.value = state.category;
-			sortSelect.value = state.sort;
-			result.textContent = sorted.length ? `共 ${sorted.length} 篇 · 第 ${state.page} / ${totalPages} 页` : '共 0 篇';
-			empty.hidden = sorted.length > 0;
-			pagination.hidden = totalPages <= 1;
-			previousButton.disabled = state.page <= 1;
-			nextButton.disabled = state.page >= totalPages;
-			pageList.replaceChildren();
-
-			for (let page = 1; page <= totalPages; page += 1) {
-				const button = document.createElement('button');
-				button.type = 'button';
-				button.textContent = String(page);
-				button.setAttribute('aria-label', `第 ${page} 页`);
-				if (page === state.page) button.setAttribute('aria-current', 'page');
-				button.addEventListener('click', () => {
-					state.page = page;
-					render(true);
-				});
-				pageList.appendChild(button);
+			if (
+				!categorySelect ||
+				!sortSelect ||
+				!result ||
+				!empty ||
+				!pagination ||
+				!previousButton ||
+				!nextButton ||
+				!pageList
+			) {
+				return;
 			}
 
-			if (syncUrl) writeState(state);
-		};
+			const readState = (): ArchiveState => {
+				const params = new URLSearchParams(
+					window.location.search
+				);
+				const categoryParam =
+					params.get('category') ?? 'all';
+				const sortParam = params.get('sort') ?? 'date-desc';
+				const pageParam = Number.parseInt(
+					params.get('page') ?? '1',
+					10
+				);
 
-		categorySelect?.addEventListener('change', () => {
-			state.category = categorySelect.value;
-			state.page = 1;
-			render(true);
-		});
+				return {
+					category: validCategories.has(categoryParam)
+						? categoryParam
+						: 'all',
+					sort: validSorts.has(sortParam)
+						? sortParam
+						: 'date-desc',
+					page:
+						Number.isFinite(pageParam) && pageParam > 0
+							? pageParam
+							: 1,
+				};
+			};
 
-		sortSelect?.addEventListener('change', () => {
-			state.sort = sortSelect.value;
-			state.page = 1;
-			render(true);
-		});
+			const writeState = (
+				state: ArchiveState,
+				replace = false
+			) => {
+				const url = new URL(window.location.href);
+				url.searchParams.set('category', state.category);
+				url.searchParams.set('sort', state.sort);
+				url.searchParams.set('page', String(state.page));
 
-		previousButton?.addEventListener('click', () => {
-			state.page -= 1;
-			render(true);
-		});
+				if (replace) {
+					window.history.replaceState(null, '', url);
+				} else {
+					window.history.pushState(null, '', url);
+				}
+			};
 
-		nextButton?.addEventListener('click', () => {
-			state.page += 1;
-			render(true);
-		});
+			let state = readState();
 
-		window.addEventListener('popstate', () => {
-			state = readState();
+			const render = (syncUrl = false) => {
+				const filtered = cards.filter(
+					(card) =>
+						state.category === 'all' ||
+						card.dataset.category === state.category
+				);
+				const sorted = [...filtered].sort((first, second) => {
+					if (state.sort === 'views-desc') {
+						return (
+							Number(second.dataset.views) -
+							Number(first.dataset.views)
+						);
+					}
+
+					const firstDate = new Date(
+						first.dataset.date ?? ''
+					).getTime();
+					const secondDate = new Date(
+						second.dataset.date ?? ''
+					).getTime();
+
+					return state.sort === 'date-asc'
+						? firstDate - secondDate
+						: secondDate - firstDate;
+				});
+				const totalPages = Math.max(
+					1,
+					Math.ceil(sorted.length / pageSize)
+				);
+				state.page = Math.min(
+					Math.max(1, state.page),
+					totalPages
+				);
+				const pageStart = (state.page - 1) * pageSize;
+				const visibleCards = new Set(
+					sorted.slice(pageStart, pageStart + pageSize)
+				);
+
+				cards.forEach((card) => {
+					card.hidden = !visibleCards.has(card);
+				});
+				sorted.forEach((card) => grid.appendChild(card));
+				categorySelect.value = state.category;
+				sortSelect.value = state.sort;
+				result.textContent = sorted.length
+					? `共 ${sorted.length} 篇 · 第 ${state.page} / ${totalPages} 页`
+					: '共 0 篇';
+				empty.hidden = sorted.length > 0;
+				pagination.hidden = totalPages <= 1;
+				previousButton.disabled = state.page <= 1;
+				nextButton.disabled = state.page >= totalPages;
+				pageList.replaceChildren();
+
+				for (let page = 1; page <= totalPages; page += 1) {
+					const button = document.createElement('button');
+					button.type = 'button';
+					button.textContent = String(page);
+					button.setAttribute('aria-label', `第 ${page} 页`);
+					if (page === state.page) {
+						button.setAttribute('aria-current', 'page');
+					}
+					button.addEventListener(
+						'click',
+						() => {
+							state.page = page;
+							render(true);
+						},
+						{ signal }
+					);
+					pageList.appendChild(button);
+				}
+
+				if (syncUrl) writeState(state);
+			};
+
+			categorySelect.addEventListener(
+				'change',
+				() => {
+					state.category = categorySelect.value;
+					state.page = 1;
+					render(true);
+				},
+				{ signal }
+			);
+			sortSelect.addEventListener(
+				'change',
+				() => {
+					state.sort = sortSelect.value;
+					state.page = 1;
+					render(true);
+				},
+				{ signal }
+			);
+			previousButton.addEventListener(
+				'click',
+				() => {
+					state.page -= 1;
+					render(true);
+				},
+				{ signal }
+			);
+			nextButton.addEventListener(
+				'click',
+				() => {
+					state.page += 1;
+					render(true);
+				},
+				{ signal }
+			);
+			window.addEventListener(
+				'popstate',
+				() => {
+					state = readState();
+					render();
+					if (window.location.search) {
+						writeState(state, true);
+					}
+				},
+				{ signal }
+			);
+
 			render();
 			if (window.location.search) writeState(state, true);
-		});
+		}
 
-		render();
-		if (window.location.search) writeState(state, true);
+		initializeArchive();
+		document.addEventListener(
+			'astro:page-load',
+			initializeArchive
+		);
 	</script>
 </BaseLayout>

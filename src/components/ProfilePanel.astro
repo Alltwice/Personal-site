@@ -99,26 +99,52 @@ const isSocial = variant === 'social';
 			if (!copied) throw new Error('Copy command failed');
 		};
 
-		document.querySelectorAll<HTMLElement>('[data-profile-panel]').forEach((panel) => {
-			const toast = panel.querySelector<HTMLElement>('[data-copy-toast]');
-			let hideTimer: number | undefined;
-
-			panel.querySelectorAll<HTMLButtonElement>('[data-copy-value]').forEach((button) => {
-				button.addEventListener('click', async () => {
-					const value = button.dataset.copyValue;
-					if (!value || !toast) return;
-
-					window.clearTimeout(hideTimer);
-					try {
-						await copyText(value);
-						toast.textContent = `已复制 ${value} 到剪切板`;
-					} catch {
-						toast.textContent = `复制失败，请手动复制 ${value}`;
+		function initializeProfilePanels() {
+			document
+				.querySelectorAll<HTMLElement>('[data-profile-panel]')
+				.forEach((panel) => {
+					if (
+						panel.dataset.copyInitialized === 'true'
+					) {
+						return;
 					}
-					toast.classList.add('is-visible');
-					hideTimer = window.setTimeout(() => toast.classList.remove('is-visible'), 2600);
+
+					panel.dataset.copyInitialized = 'true';
+
+					const toast =
+						panel.querySelector<HTMLElement>('[data-copy-toast]');
+					let hideTimer: number | undefined;
+
+					panel
+						.querySelectorAll<HTMLButtonElement>('[data-copy-value]')
+						.forEach((button) => {
+							button.addEventListener('click', async () => {
+								const value = button.dataset.copyValue;
+								if (!value || !toast) return;
+
+								window.clearTimeout(hideTimer);
+								try {
+									await copyText(value);
+									toast.textContent =
+										`已复制 ${value} 到剪切板`;
+								} catch {
+									toast.textContent =
+										`复制失败，请手动复制 ${value}`;
+								}
+								toast.classList.add('is-visible');
+								hideTimer = window.setTimeout(
+									() => toast.classList.remove('is-visible'),
+									2600
+								);
+							});
+						});
 				});
-			});
-		});
+		}
+
+		initializeProfilePanels();
+		document.addEventListener(
+			'astro:page-load',
+			initializeProfilePanels
+		);
 	</script>
 )}

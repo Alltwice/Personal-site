@@ -6,10 +6,12 @@ const {
 	detailId = 'detail',
 	variant = 'default',
 } = Astro.props;
+
+const usesFeatureLayout = ['home', 'listing', 'about'].includes(variant);
 ---
 
 <section
-	class:list={['showcase', `showcase--${variant}`]}
+	class:list={['showcase', `showcase--${variant}`, { 'showcase--feature': usesFeatureLayout }]}
 	aria-labelledby={titleId}
 	data-page={pageLabel.toLowerCase()}
 >

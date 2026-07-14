@@ -9,6 +9,7 @@ const tencentMapKey =
 	data-current-weather
 	data-tencent-key={tencentMapKey}
 	aria-busy="true"
+	transition:persist="current-weather"
 >
 	<div class="current-weather__heading">
 		<p id="weather-title">
@@ -74,6 +75,92 @@ const tencentMapKey =
 		</span>
 	</div>
 </section>
+
+<script is:inline data-astro-rerun>
+	(() => {
+		const snapshotKey =
+			'portfolio:current-weather-display:v1';
+		const snapshotTtl = 60 * 60 * 1000;
+
+		try {
+			const raw = window.localStorage.getItem(
+				snapshotKey
+			);
+
+			if (!raw) return;
+
+			const cached = JSON.parse(raw);
+			const data = cached?.data;
+			const fields = [
+				'location',
+				'temperature',
+				'description',
+				'iconClassName',
+				'high',
+				'low',
+				'updated',
+			];
+			const isValid =
+				typeof cached?.timestamp === 'number' &&
+				Date.now() - cached.timestamp <= snapshotTtl &&
+				data &&
+				fields.every(
+					(field) => typeof data[field] === 'string'
+				);
+
+			if (!isValid) {
+				window.localStorage.removeItem(snapshotKey);
+				return;
+			}
+
+			const panel = document.querySelector(
+				'[data-current-weather]'
+			);
+
+			if (!panel) return;
+
+			const setText = (selector, value) => {
+				const element = panel.querySelector(selector);
+
+				if (element) element.textContent = value;
+			};
+
+			setText('[data-weather-state]', 'LOCATION');
+			setText('[data-weather-location]', data.location);
+			setText(
+				'[data-weather-temperature]',
+				data.temperature
+			);
+			setText(
+				'[data-weather-description]',
+				data.description
+			);
+			setText('[data-weather-high]', data.high);
+			setText('[data-weather-low]', data.low);
+			setText('[data-weather-updated]', data.updated);
+
+			const icon = panel.querySelector(
+				'[data-weather-icon]'
+			);
+
+			if (icon) icon.className = data.iconClassName;
+
+			const retry = panel.querySelector(
+				'[data-weather-retry]'
+			);
+
+			if (retry) retry.hidden = true;
+
+			panel.setAttribute('aria-busy', 'false');
+		} catch {
+			try {
+				window.localStorage.removeItem(snapshotKey);
+			} catch {
+				// localStorage 不可用时继续使用默认加载流程。
+			}
+		}
+	})();
+</script>
 
 <script>
 	type TencentResponse<T> = {
@@ -169,6 +256,16 @@ const tencentMapKey =
 		timestamp: number;
 	};
 
+	type WeatherDisplaySnapshot = {
+		location: string;
+		temperature: string;
+		description: string;
+		iconClassName: string;
+		high: string;
+		low: string;
+		updated: string;
+	};
+
 	const API_BASE =
 		'https://apis.map.qq.com/ws';
 
@@ -183,6 +280,9 @@ const tencentMapKey =
 
 	const WEATHER_CACHE_PREFIX =
 		'portfolio:tencent-weather:v1:';
+
+	const DISPLAY_SNAPSHOT_KEY =
+		'portfolio:current-weather-display:v1';
 
 	/*
 	 * 避免连续请求触发频率限制。
@@ -269,6 +369,50 @@ const tencentMapKey =
 		} catch (error) {
 			console.warn(
 				`写入缓存失败：${key}`,
+				error
+			);
+		}
+	}
+
+	function readDisplaySnapshot() {
+		const snapshot = readCache<WeatherDisplaySnapshot>(
+			DISPLAY_SNAPSHOT_KEY,
+			CACHE_TTL
+		);
+
+		if (
+			!snapshot ||
+			[
+				snapshot.location,
+				snapshot.temperature,
+				snapshot.description,
+				snapshot.iconClassName,
+				snapshot.high,
+				snapshot.low,
+				snapshot.updated,
+			].some((value) => typeof value !== 'string')
+		) {
+			if (snapshot) clearDisplaySnapshot();
+			return null;
+		}
+
+		return snapshot;
+	}
+
+	function writeDisplaySnapshot(
+		data: WeatherDisplaySnapshot
+	) {
+		writeCache(DISPLAY_SNAPSHOT_KEY, data);
+	}
+
+	function clearDisplaySnapshot() {
+		try {
+			window.localStorage.removeItem(
+				DISPLAY_SNAPSHOT_KEY
+			);
+		} catch (error) {
+			console.warn(
+				'清除天气显示快照失败：',
 				error
 			);
 		}
@@ -922,6 +1066,63 @@ const tencentMapKey =
 					}
 				}
 
+				function renderDisplaySnapshot(
+					snapshot: WeatherDisplaySnapshot
+				) {
+					panel.setAttribute(
+						'aria-busy',
+						'false'
+					);
+
+					if (state) state.textContent = 'LOCATION';
+					if (location) {
+						location.textContent = snapshot.location;
+					}
+					if (temperature) {
+						temperature.textContent =
+							snapshot.temperature;
+					}
+					if (description) {
+						description.textContent =
+							snapshot.description;
+					}
+					if (icon) {
+						icon.className = snapshot.iconClassName;
+					}
+					if (high) high.textContent = snapshot.high;
+					if (low) low.textContent = snapshot.low;
+					if (updated) {
+						updated.textContent = snapshot.updated;
+					}
+					if (retry) retry.hidden = true;
+				}
+
+				function saveDisplaySnapshot() {
+					if (
+						!location ||
+						!temperature ||
+						!description ||
+						!icon ||
+						!high ||
+						!low ||
+						!updated
+					) {
+						return;
+					}
+
+					writeDisplaySnapshot({
+						location: location.textContent ?? '',
+						temperature:
+							temperature.textContent ?? '',
+						description:
+							description.textContent ?? '',
+						iconClassName: icon.className,
+						high: high.textContent ?? '',
+						low: low.textContent ?? '',
+						updated: updated.textContent ?? '',
+					});
+				}
+
 				function renderError(
 					locationMessage: string,
 					descriptionMessage: string
@@ -1090,11 +1291,42 @@ const tencentMapKey =
 					if (retry) {
 						retry.hidden = true;
 					}
+
+					saveDisplaySnapshot();
 				}
 
+				function renderCachedWeather() {
+					const snapshot = readDisplaySnapshot();
+
+					if (!snapshot) return false;
+
+					renderDisplaySnapshot(snapshot);
+					return true;
+				}
 				async function loadWeather(
 					forceRefresh = false
 				) {
+					if (forceRefresh) {
+						clearDisplaySnapshot();
+
+						try {
+							window.localStorage.removeItem(
+								LOCATION_CACHE_KEY
+							);
+						} catch (error) {
+							console.warn(
+								'清除位置缓存失败：',
+								error
+							);
+						}
+
+						clearWeatherCaches();
+						pendingLocation = null;
+						pendingWeather.clear();
+					} else if (renderCachedWeather()) {
+						return;
+					}
+
 					resetView();
 
 					if (!key) {
@@ -1104,16 +1336,6 @@ const tencentMapKey =
 						);
 
 						return;
-					}
-
-					if (forceRefresh) {
-						window.localStorage.removeItem(
-							LOCATION_CACHE_KEY
-						);
-
-						clearWeatherCaches();
-						pendingLocation = null;
-						pendingWeather.clear();
 					}
 
 					let locationData:
@@ -1146,9 +1368,7 @@ const tencentMapKey =
 					}
 
 					const locationText =
-						formatLocation(
-							locationData
-						);
+						formatLocation(locationData);
 
 					if (state) {
 						state.textContent =
@@ -1160,10 +1380,6 @@ const tencentMapKey =
 							locationText;
 					}
 
-					/*
-					 * 与前一次 IP 请求稍微错开，
-					 * 降低连续请求触发频率限制的概率。
-					 */
 					await delay(REQUEST_GAP);
 
 					try {
